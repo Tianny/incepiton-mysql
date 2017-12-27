@@ -1,0 +1,75 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Inception
+            <small>MySQL</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ url_for('main.dashboard') }}"><i class="fa fa-home"></i> Home</a></li>
+            <li class="active">DBs</li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <h3 class="box-title">DB Instances Table</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <table id="example1" class="table table-bordered table-hover">
+                            <thead>
+                            <tr>
+                                <th>DBName</th>
+                                <th>MasterAddress</th>
+                                <th>MasterPort</th>
+                                <th>SlaveAddress</th>
+                                <th>SlavePort</th>
+                                <th>Username</th>
+                                <th>CreateTime</th>
+                                <th>UpdateTime</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for dbconfig in dbconfigs %}
+                                <tr>
+                                    <td>{{ dbconfig.name }}</td>
+                                    <td>{{ dbconfig.master_host }}</td>
+                                    <td>{{ dbconfig.master_port }}</td>
+                                    <td>{{ dbconfig.slave_host }}</td>
+                                    <td>{{ dbconfig.slave_port }}</td>
+                                    <td>{{ dbconfig.user }}</td>
+                                    <td>{{ dbconfig.create_time }}</td>
+                                    <td>{{ dbconfig.update_time }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-block btn-info btn-sm"
+                                                onclick="{location.href='{{ url_for('admin.db_update', id=dbconfig.id) }}'}">
+                                            Modify
+                                        </button>
+                                        <button type="button" class="btn btn-block btn-danger btn-sm"
+                                                onclick="{location.href='{{ url_for('admin.db_delete', id=dbconfig.id) }}'}">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+
+    </section>
+    <!-- /.content -->
+
+{% endblock %}

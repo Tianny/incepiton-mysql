@@ -19,7 +19,7 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter(User.name == form.username.data).first()
         if user is not None and user.name == 'admin':
-            if user.check_password(user.hash_pass, form.password.data):
+            if user.check_password(form.password.data):
                 login_user(user, form.remember_me.data)
                 identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
                 return redirect(url_for('main.dashboard'))

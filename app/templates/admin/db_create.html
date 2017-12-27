@@ -1,0 +1,88 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Inception
+            <small>MySQL</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ url_for('main.dashboard') }}"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="{{ url_for('admin.db') }}"> Dbs</a></li>
+            <li class="active">Add dbs</li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Quick Add</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <!-- form start -->
+                    <form role="form" method="post" action="{{ url_for('admin.db_create') }}">
+                        {{ form.hidden_tag() }}
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label for="DBName">DBName</label>
+                                <input type="text" class="form-control" name="{{ form.name.name }}" required="required"
+                                       placeholder="Enter DBName">
+                            </div>
+                            <div class="form-group">
+                                <label for="MasterAddress">MasterAddress</label>
+                                <input type="text" class="form-control" name="{{ form.master_host.name }}"
+                                       required="required"
+                                       placeholder="Enter MasterAddress">
+                            </div>
+                            <div class="form-group">
+                                <label for="MasterPort">MasterPort</label>
+                                <input type="text" class="form-control" name="{{ form.master_port.name }}"
+                                       required="required"
+                                       placeholder="Enter MasterPort" value="3306">
+                            </div>
+                            <div class="form-group">
+                                <label for="SlaveAddress">SlaveAddress</label>
+                                <input type="text" class="form-control" name="{{ form.slave_host.name }}"
+                                       required="required"
+                                       placeholder="Enter SlaveAddress">
+                            </div>
+                            <div class="form-group">
+                                <label for="SlavePort">SlavePort</label>
+                                <input type="text" class="form-control" name="{{ form.slave_port.name }}"
+                                       required="required"
+                                       placeholder="Enter SlavePort" value="3306">
+                            </div>
+                            <div class="form-group">
+                                <label for="Username">Username</label>
+                                <input type="text" class="form-control" name="{{ form.username.name }}"
+                                       required="required"
+                                       placeholder="Enter Username">
+                            </div>
+                            <div class="form-group">
+                                <label for="Password">Password</label>
+                                <input type="password" class="form-control" name="{{ form.password.name }}"
+                                       required="required"
+                                       placeholder="Enter Password">
+                            </div>
+                        </div>
+                        <!-- /.box-body -->
+
+                        <div class="box-footer">
+                            <button type="reset" class="btn btn-primary">Reset</button>
+                            &nbsp;&nbsp;
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+
+    </section>
+    <!-- /.content -->
+
+{% endblock %}

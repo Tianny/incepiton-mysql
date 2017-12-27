@@ -19,7 +19,7 @@ class User(UserMixin, db.Model):
     hash_pass = db.Column(db.String(200))
     email = db.Column(db.String(64))
     role = db.Column(db.String(64))
-    dbs = db.relationship('Dbconfig', secondary=dbs, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
+    dbs = db.relationship('Dbconfig', secondary=dbs, backref=db.backref('users', lazy='dynamic'))
 
     def set_password(self, password):
         self.hash_pass = generate_password_hash(password)

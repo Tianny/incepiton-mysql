@@ -51,16 +51,23 @@
                     <!-- /.box-header -->
                     <div class="box-body no-padding">
                         <table class="table table-bordered">
-                            <tr>cd
-                                <td>1.</td>
-                                <td>Update software</td>
-                                <td>
-                                    <button type="button" class="btn btn-danger btn-sm"
-                                            onclick="{location.href='{{ url_for('admin.user_delete', id=user.id) }}'}">
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
+                            {% if not user_dbconfigs %}
+                                <tr>
+                                    <td>No DB Resources Current Now</td>
+                                </tr>
+                            {% endif %}
+                            {% for dbconfig in user_dbconfigs %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ dbconfig.name }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm btn-block"
+                                                onclick="{location.href='{{ url_for('admin.user_unbind', user_id=user.id, db_id=dbconfig.id) }}'}">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
                         </table>
                     </div>
                     <!-- /.box-body -->

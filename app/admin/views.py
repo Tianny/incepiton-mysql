@@ -146,3 +146,15 @@ def user_alloc(id):
         user_dbconfigs=user_dbconfigs,
         all_dbconfigs=all_dbconfigs
     )
+
+
+@admin.route('/user/unbind/<int:user_id><int:db_id>')
+@admin_permission.require()
+def user_unbind(user_id, db_id):
+    user = User.query.get(user_id)
+    dbconfig = Dbconfig.query.get(db_id)
+    user.dbs.remove(dbconfig)
+    db.session.add(user)
+    db.session.commit()
+
+    return redirect(url_for('.user_db_alloc', id=user_id))

@@ -23,7 +23,7 @@
                     </div>
                     <!-- /.box-header -->
                     <div class="box-body">
-                        <table id="example1" class="table table-bordered table-hover">
+                        <table id="example1" class="table table-bordered table-hover" style="width: 100%;">
                             <thead>
                             <tr>
                                 <th>DBName</th>
@@ -45,16 +45,16 @@
                                     <td>{{ dbconfig.master_port }}</td>
                                     <td>{{ dbconfig.slave_host }}</td>
                                     <td>{{ dbconfig.slave_port }}</td>
-                                    <td>{{ dbconfig.user }}</td>
+                                    <td>{{ dbconfig.username }}</td>
                                     <td>{{ dbconfig.create_time }}</td>
                                     <td>{{ dbconfig.update_time }}</td>
                                     <td>
                                         <button type="button" class="btn btn-block btn-info btn-sm"
-                                                onclick="{location.href='{{ url_for('admin.db_update', id=dbconfig.id) }}'}">
+                                                onclick="location.href='{{ url_for('admin.db_update', id=dbconfig.id) }}'">
                                             Modify
                                         </button>
                                         <button type="button" class="btn btn-block btn-danger btn-sm"
-                                                onclick="{location.href='{{ url_for('admin.db_delete', id=dbconfig.id) }}'}">
+                                                onclick="location.href='{{ url_for('admin.db_delete', id=dbconfig.id) }}'">
                                             Delete
                                         </button>
                                     </td>
@@ -72,4 +72,20 @@
     </section>
     <!-- /.content -->
 
+{% endblock %}
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{{ url_for('static',filename='vendor/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='vendor/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+{% endblock %}
+
+{% block custom %}
+    <script>
+        $(function () {
+            $('#example1').DataTable({
+                scrollX: true
+            });
+        })
+    </script>
 {% endblock %}

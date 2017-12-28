@@ -2,7 +2,9 @@ import base64
 from datetime import datetime
 
 from flask import render_template, redirect, url_for
+from werkzeug.security import generate_password_hash
 
+from .. import db
 from .. import admin_permission
 from ..models import Dbconfig, User
 from .form import DbForm, UserForm, ModifyRoleForm, UserDbForm
@@ -11,7 +13,7 @@ from . import admin
 
 @admin.route('/db')
 @admin_permission.require()
-def db():
+def dbs():
     dbconfigs = Dbconfig.query.all()
     return render_template('admin/db.html', dbconfigs=dbconfigs)
 
@@ -28,11 +30,11 @@ def db_create():
         dbconfig.slave_host = form.slave_host.data
         dbconfig.slave_port = form.slave_port.data
         dbconfig.username = form.username.data
-        dbconfig.password = base64.b64encode(form.password.data)
+        dbconfig.password = base64.b64encode(form.password.data.encode())
         db.session.add(dbconfig)
         db.session.commit()
 
-        return redirect(url_for('.db'))
+        return redirect(url_for('.dbs'))
 
     return render_template('admin/db_create.html', form=form)
 
@@ -49,12 +51,12 @@ def db_update(id):
         dbconfig.slave_host = form.slave_host.data
         dbconfig.slave_port = form.slave_port.data
         dbconfig.username = form.username.data
-        dbconfig.password = base64.b64encode(form.password.data)
+        dbconfig.password = base64.b64encode(form.password.data.encode())
         dbconfig.update_time = datetime.now()
         db.session.add(dbconfig)
         db.session.commit()
 
-        return redirect(url_for('.db'))
+        return redirect(url_for('.dbs'))
 
     return render_template('admin/db_update.html', form=form, dbconfig=dbconfig)
 
@@ -66,7 +68,7 @@ def db_delete(id):
     db.session.delete(dbconfig)
     db.session.commit()
 
-    return redirect(url_for('.db'))
+    return redirect(url_for('.dbs'))
 
 
 @admin.route('/user')
@@ -83,7 +85,7 @@ def user_create():
     if form.validate_on_submit():
         user = User()
         user.name = form.name.data
-        user.hash_pass = user.set_password(form.password.data)
+        user.hash_pass = generate_password_hash(form.password.data)
         user.role = form.role.data
         user.email = form.email.data
         db.session.add(user)
@@ -148,7 +150,7 @@ def user_alloc(id):
     )
 
 
-@admin.route('/user/unbind/<int:user_id><int:db_id>')
+@admin.route('/user/unbind/<int:user_id>/<int:db_id>')
 @admin_permission.require()
 def user_unbind(user_id, db_id):
     user = User.query.get(user_id)
@@ -157,4 +159,4 @@ def user_unbind(user_id, db_id):
     db.session.add(user)
     db.session.commit()
 
-    return redirect(url_for('.user_db_alloc', id=user_id))
+    return redirect(url_for('.user_alloc', id=user_id))

@@ -56,7 +56,7 @@ class Dbconfig(db.Model):
     master_port = db.Column(db.Integer, default=3306)
     slave_host = db.Column(db.String(200), )
     slave_port = db.Column(db.Integer, default=3306)
-    user = db.Column(db.String(64))
+    username = db.Column(db.String(64))
     password = db.Column(db.String(100))
     create_time = db.Column(db.DateTime, default=datetime.now())
     update_time = db.Column(db.DateTime, default=datetime.now())

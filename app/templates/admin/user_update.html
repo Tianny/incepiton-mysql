@@ -29,14 +29,9 @@
                         <div class="box-body">
                             <div class="form-group">
                                 <label>Role</label>
-                                <select class="form-control select2" style="width: 100%;">
-                                    <option selected="selected">Alabama</option>
-                                    <option>Alaska</option>
-                                    <option>California</option>
-                                    <option>Delaware</option>
-                                    <option>Tennessee</option>
-                                    <option>Texas</option>
-                                    <option>Washington</option>
+                                <select class="form-control select2" name="{{ form.role.name }}" style="width: 100%;">
+                                    <option selected="selected" value="dev">Dev</option>
+                                    <option value="audit">Audit</option>
                                 </select>
                             </div>
                         </div>
@@ -54,4 +49,17 @@
     </section>
     <!-- /.content -->
 
+{% endblock %}
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{{ url_for('static',filename='vendor/select2/js/select2.full.min.js') }}"></script>
+{% endblock %}
+
+{% block custom %}
+    <script>
+        $(function () {
+            $('.select2').select2()
+        })
+    </script>
 {% endblock %}

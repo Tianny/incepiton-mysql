@@ -29,7 +29,7 @@
                         <div class="box-body">
                             <div class="form-group">
                                 <label>DBs</label>
-                                <select class="form-control select2" name="{{ form.db.data }}" style="width: 100%;">
+                                <select class="form-control select2" name="{{ form.db.name }}" style="width: 100%;">
                                     {% for dbconfig in all_dbconfigs %}
                                         <option value="{{ dbconfig.id }}">{{ dbconfig.name }}</option>
                                     {% endfor %}
@@ -62,7 +62,7 @@
                                     <td>{{ dbconfig.name }}</td>
                                     <td>
                                         <button type="button" class="btn btn-danger btn-sm btn-block"
-                                                onclick="{location.href='{{ url_for('admin.user_unbind', user_id=user.id, db_id=dbconfig.id) }}'}">
+                                                onclick="location.href='{{ url_for('admin.user_unbind', user_id=user.id, db_id=dbconfig.id) }}'">
                                             Delete
                                         </button>
                                     </td>
@@ -79,4 +79,17 @@
     </section>
     <!-- /.content -->
 
+{% endblock %}
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{{ url_for('static',filename='vendor/select2/js/select2.full.min.js') }}"></script>
+{% endblock %}
+
+{% block custom %}
+    <script>
+        $(function () {
+            $('.select2').select2()
+        })
+    </script>
 {% endblock %}

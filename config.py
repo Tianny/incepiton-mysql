@@ -22,9 +22,6 @@ class Config:
     # LDAP switch option
     LDAP_ON_OFF = 'ON'
 
-    # To be discarded
-    AUDIT_SROLE_ON_OFF = 'OFF'
-
     @staticmethod
     def init_app(app):
         pass

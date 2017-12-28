@@ -23,7 +23,7 @@
                     </div>
                     <!-- /.box-header -->
                     <div class="box-body">
-                        <table id="example1" class="table table-bordered table-hover">
+                        <table id="example1" class="table table-bordered table-hover" style="width: 100%">
                             <thead>
                             <tr>
                                 <th>Username</th>
@@ -66,4 +66,20 @@
     </section>
     <!-- /.content -->
 
+{% endblock %}
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{{ url_for('static',filename='vendor/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='vendor/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+{% endblock %}
+
+{% block custom %}
+<script>
+    $(function () {
+        $('#example1').DataTable({
+            scrollX: true
+        });
+    })
+</script>
 {% endblock %}

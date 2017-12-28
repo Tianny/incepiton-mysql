@@ -103,7 +103,7 @@
                             </span>
                         </a>
                         <ul class="treeview-menu">
-                            <li><a href="{{ url_for('admin.db') }}"><i class="fa fa-circle-o"></i>View</a></li>
+                            <li><a href="{{ url_for('admin.dbs') }}"><i class="fa fa-circle-o"></i>View</a></li>
                             <li><a href="{{ url_for('admin.db_create') }}"><i class="fa fa-circle-o"></i> Add</a></li>
                         </ul>
                     </li>
@@ -251,22 +251,14 @@
 <script src="{{ url_for('static',filename='vendor/jquery-slimscroll/jquery.slimscroll.min.js') }}"></script>
 <!-- ChartJS -->
 <script src="{{ url_for('static',filename='vendor/chart.js/Chart.js') }}"></script>
-<!-- DataTables -->
-<script src="{{ url_for('static',filename='vendor/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-<script src="{{ url_for('static',filename='vendor/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
-<!-- Select2 -->
-<link rel="stylesheet" href="{{ url_for('static',filename='vendor/select2/js/select2.full.min.js') }}">
-{#<script>#}
-{#    $(function () {#}
-{#        $('#example1').DataTable();#}
-{#        $('.select2').select2();#}
-{#    })#}
-{#</script>#}
-<script>
-    $(document).ready(function () {
-        $('#example1').DataTable();
-        $('.select2').select2();
-    });
-</script>
+
+{% block js %}
+{% endblock %}
+
+{% block custom %}
+{% endblock %}
+
+{% block ajax %}
+{% endblock %}
 </body>
 </html>

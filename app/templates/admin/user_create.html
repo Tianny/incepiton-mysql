@@ -41,7 +41,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Role</label>
-                                <select class="form-control select2" style="width: 100%;">
+                                <select class="form-control select2" name="{{ form.role.name }}" style="width: 100%;">
                                     <option selected="selected" value="dev">Dev</option>
                                     <option value="audit">Audit</option>
                                 </select>
@@ -70,4 +70,17 @@
     </section>
     <!-- /.content -->
 
+{% endblock %}
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{{ url_for('static',filename='vendor/select2/js/select2.full.min.js') }}"></script>
+{% endblock %}
+
+{% block custom %}
+    <script>
+        $(function () {
+            $('.select2').select2()
+        })
+    </script>
 {% endblock %}

@@ -10,7 +10,7 @@
         <ol class="breadcrumb">
             <li><a href="{{ url_for('main.dashboard') }}"><i class="fa fa-home"></i> Home</a></li>
             <li><a href="{{ url_for('dev.dev_resource') }}"> Resources</a></li>
-            <li class="active">Resource Request</li>
+            <li class="active"> Request</li>
         </ol>
     </section>
 
@@ -37,7 +37,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Audits</label>
+                                <label>Auditors</label>
                                 <select class="form-control select2" name="{{ form.audit.name }}" style="width: 100%;">
                                     {% for audit in audits %}
                                         <option value="{{ audit.name }}">{{ audit.name }}</option>

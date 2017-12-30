@@ -17,6 +17,10 @@
           href="{{ url_for('static',filename='vendor/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
     <!-- Select2 -->
     <link rel="stylesheet" href="{{ url_for('static',filename='vendor/select2/css/select2.min.css') }}">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="{{ url_for('static',filename='plugins/iCheck/all.css') }}">
+    <!-- SweetAlert2-->
+    <link rel="stylesheet" href="{{ url_for('static',filename='vendor/sweetalert2/sweetalert2.min.css') }}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ url_for('static',filename='dist/css/AdminLTE.min.css') }}">
     <!-- AdminLTE Skins. Choose a skin from the css/skins
@@ -128,6 +132,20 @@
                         <a href="#">
                             <i class="fa fa-database"></i>
                             <span>DBs</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="{{ url_for('dev.dev_resource') }}"><i class="fa fa-circle-o"></i>View</a></li>
+                            <li><a href="{{ url_for('dev.dev_resource_request') }}"><i class="fa fa-circle-o"></i> Add</a></li>
+                            <li><a href="{{ url_for('dev.dev_resource_status') }}"><i class="fa fa-circle-o"></i> Status</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-tasks"></i>
+                            <span>Work Sheet</span>
                             <span class="pull-right-container">
                                 <i class="fa fa-angle-left pull-right"></i>
                             </span>

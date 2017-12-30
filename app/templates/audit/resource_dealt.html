@@ -1,0 +1,90 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Inception
+            <small>MySQL</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ url_for('main.dashboard') }}"><i class="fa fa-home"></i> Home</a></li>
+            <li class="active"> Resources Dealt</li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <h3 class="box-title"> Resources Dealt</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <table id="example1" class="table table-bordered table-hover" style="width: 100%">
+                            <thead>
+                            <tr>
+                                <th>DB</th>
+                                <th>Audit</th>
+                                <th>CreateTime</th>
+                                <th>FinishTime</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for resource in resources %}
+                                <tr>
+                                    <td>{{ resource.db_name }}</td>
+                                    <td>{{ resource.audit_name }}</td>
+                                    <td>{{ resource.create_time }}</td>
+                                    <td>
+                                        {% if resource.finish_time %}
+                                            {{ resource.finish_time }}
+                                        {% else %}
+                                            Unknown
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if resource.status == 0 %}
+                                            Success
+                                        {% elif resource.status == 1 %}
+                                            Pending
+                                        {% elif resource.status == 2 %}
+                                            Dev Cancelled
+                                        {% elif resource.status == 3 %}
+                                            Audit Cancelled
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+
+    </section>
+    <!-- /.content -->
+
+{% endblock %}
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{{ url_for('static',filename='vendor/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='vendor/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+{% endblock %}
+
+{% block custom %}
+    <script>
+        $(function () {
+            $('#example1').DataTable({
+                scrollX: true
+            });
+        })
+    </script>
+{% endblock %}

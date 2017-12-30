@@ -2,6 +2,7 @@ import base64
 from datetime import datetime
 
 from flask import render_template, redirect, url_for
+from flask_login import login_required
 from werkzeug.security import generate_password_hash
 
 from .. import db
@@ -12,14 +13,16 @@ from . import admin
 
 
 @admin.route('/db')
-@admin_permission.require()
+@login_required
+@admin_permission.require(http_exception=403)
 def dbs():
     dbconfigs = Dbconfig.query.all()
     return render_template('admin/db.html', dbconfigs=dbconfigs)
 
 
 @admin.route('/db/create', methods=['GET', 'POST'])
-@admin_permission.require()
+@login_required
+@admin_permission.require(http_exception=403)
 def db_create():
     form = DbForm()
     if form.validate_on_submit():
@@ -40,7 +43,8 @@ def db_create():
 
 
 @admin.route('/db/update/<int:id>', methods=['GET', 'POST'])
-@admin_permission.require()
+@login_required
+@admin_permission.require(http_exception=403)
 def db_update(id):
     dbconfig = Dbconfig.query.get(id)
     form = DbForm()
@@ -62,7 +66,8 @@ def db_update(id):
 
 
 @admin.route('/db/delete/<int:id>')
-@admin_permission.require()
+@login_required
+@admin_permission.require(http_exception=403)
 def db_delete(id):
     dbconfig = Dbconfig.query.get(id)
     db.session.delete(dbconfig)
@@ -72,14 +77,16 @@ def db_delete(id):
 
 
 @admin.route('/user')
-@admin_permission.require()
+@login_required
+@admin_permission.require(http_exception=403)
 def user():
     users = User.query.filter(User.role != 'admin')
     return render_template('admin/user.html', users=users)
 
 
 @admin.route('/user/create', methods=['GET', 'POST'])
-@admin_permission.require()
+@login_required
+@admin_permission.require(http_exception=403)
 def user_create():
     form = UserForm()
     if form.validate_on_submit():
@@ -97,7 +104,8 @@ def user_create():
 
 
 @admin.route('/user/update/<int:id>', methods=['GET', 'POST'])
-@admin_permission.require()
+@login_required
+@admin_permission.require(http_exception=403)
 def user_update(id):
     user = User.query.get(id)
     form = ModifyRoleForm()
@@ -112,7 +120,8 @@ def user_update(id):
 
 
 @admin.route('/user/delete/<int:id>', methods=['GET', 'POST'])
-@admin_permission.require()
+@login_required
+@admin_permission.require(http_exception=403)
 def user_delete(id):
     user = User.query.get(id)
     db.session.delete(user)
@@ -122,7 +131,8 @@ def user_delete(id):
 
 
 @admin.route('/user/alloc/<int:id>', methods=['GET', 'POST'])
-@admin_permission.require()
+@login_required
+@admin_permission.require(http_exception=403)
 def user_alloc(id):
     user = User.query.get(id)
     user_dbconfigs = user.dbs
@@ -151,7 +161,8 @@ def user_alloc(id):
 
 
 @admin.route('/user/unbind/<int:user_id>/<int:db_id>')
-@admin_permission.require()
+@login_required
+@admin_permission.require(http_exception=403)
 def user_unbind(user_id, db_id):
     user = User.query.get(user_id)
     dbconfig = Dbconfig.query.get(db_id)

@@ -60,3 +60,15 @@ class Dbconfig(db.Model):
     password = db.Column(db.String(100))
     create_time = db.Column(db.DateTime, default=datetime.now())
     update_time = db.Column(db.DateTime, default=datetime.now())
+
+
+class Dbapply(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    dev_name = db.Column(db.String(64))
+    db_name = db.Column(db.String(64))
+    audit_name = db.Column(db.String(64))
+    status = db.Column(db.Integer)
+    create_time = db.Column(db.DateTime, default=datetime.now())
+    finish_time = db.Column(db.DateTime)
+
+

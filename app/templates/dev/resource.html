@@ -1,0 +1,62 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Inception
+            <small>MySQL</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ url_for('main.dashboard') }}"><i class="fa fa-home"></i> Home</a></li>
+            <li class="active">Resources</li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <h3 class="box-title">{{ user.name }}'s DB resource</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body no-padding">
+                        <table class="table table-bordered">
+                            {% if not resources %}
+                                <tr>
+                                    <td>No DB Resources Available</td>
+                                </tr>
+                            {% endif %}
+                            {% for resource in resources %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ resource.name }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+
+    </section>
+    <!-- /.content -->
+
+{% endblock %}
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{{ url_for('static',filename='vendor/select2/js/select2.full.min.js') }}"></script>
+{% endblock %}
+
+{% block custom %}
+    <script>
+        $(function () {
+            $('.select2').select2()
+        })
+    </script>
+{% endblock %}

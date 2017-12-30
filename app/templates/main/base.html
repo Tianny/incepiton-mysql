@@ -123,6 +123,54 @@
                     </li>
                 {% endif %}
 
+                {% if current_user.role == 'dev' %}
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-database"></i>
+                            <span>DBs</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="{{ url_for('dev.dev_resource') }}"><i class="fa fa-circle-o"></i>View</a></li>
+                            <li><a href="{{ url_for('dev.dev_resource_request') }}"><i class="fa fa-circle-o"></i> Add</a></li>
+                            <li><a href="{{ url_for('dev.dev_resource_status') }}"><i class="fa fa-circle-o"></i> Status</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
+
+                {% if current_user.role == 'audit' %}
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-database"></i>
+                            <span>DBs</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="{{ url_for('audit.audit_resource_pending') }}"><i class="fa fa-circle-o"></i> Pending</a></li>
+                            <li><a href="{{ url_for('audit.audit_resource_dealt') }}"><i class="fa fa-circle-o"></i> Dealt</a></li>
+
+                        </ul>
+                    </li>
+                {% endif %}
+
+{#                    <li class="treeview">#}
+{#                        <a href="#">#}
+{#                            <i class="fa fa-users"></i>#}
+{#                            <span>Users</span>#}
+{#                            <span class="pull-right-container">#}
+{#                                <i class="fa fa-angle-left pull-right"></i>#}
+{#                            </span>#}
+{#                        </a>#}
+{#                        <ul class="treeview-menu">#}
+{#                            <li><a href="{{ url_for('admin.user') }}"><i class="fa fa-circle-o"></i>View</a></li>#}
+{#                            <li><a href="{{ url_for('admin.user_create') }}"><i class="fa fa-circle-o"></i> Add</a></li>#}
+{#                        </ul>#}
+{#                    </li>#}
+
                 <li><a href="#"><i class="fa fa-link"></i> <span>Another Link</span></a></li>
                 <li class="treeview">
                     <a href="#"><i class="fa fa-link"></i> <span>Multilevel</span>

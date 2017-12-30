@@ -56,6 +56,9 @@ def create_app(config_name):
     from .admin import admin as admin_blueprint
     app.register_blueprint(admin_blueprint)
 
+    from .audit import audit as audit_blueprint
+    app.register_blueprint(audit_blueprint)
+
     from .dev import dev as dev_blueprint
     app.register_blueprint(dev_blueprint)
 

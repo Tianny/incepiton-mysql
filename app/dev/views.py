@@ -131,7 +131,7 @@ def dev_work_create():
             sql_content = ''
             for count in range(int(shard)):
                 format_table_list = format_table.split(' ')
-                shard_name = '`' + format_table_list[2].strip(['`']) + '_' + str(count) + '`'
+                shard_name = '`' + str(format_table_list[2].strip('`')) + '_' + str(count) + '`'
                 format_table_list[2] = shard_name
                 sql_content += ' '.join(format_table_list)
             sql_content = split_sql[0] + sql_content

@@ -1,8 +1,109 @@
 import base64
+import re
 
+import pymysql
 from flask import current_app
 
 from .models import Dbconfig
+
+
+def fetch_all(sql_content, host, port, user, password, db_in):
+    """
+    封装mysql连接和获取结果集方法
+    :param sql_content:
+    :param host:
+    :param port:
+    :param user:
+    :param password:
+    :param db_in:
+    :return:
+    """
+    result = None
+    conn = None
+    cur = None
+    sql_content = sql_content.encode('utf-8')
+
+    try:
+        conn = pymysql.connect(
+            host=host,
+            user=user,
+            password=password,
+            db_in=db_in,
+            port=port,
+            charset='utf8mb4'
+        )
+        cur = conn.cursor()
+        cur.execute(sql_content)
+        result = cur.fetchall()
+    except pymysql.InternalError as e:
+        print("Mysql Error %d: %s" % (e.args[0], e.args[1]))
+    finally:
+        if cur is not None:
+            cur.close()
+        if conn is not None:
+            conn.close()
+
+    return result
+
+
+def critical_ddl(sql_content):
+    """
+    识别DROP DATABASE, DROP TABLE, TRUNCATE PARTITION, TRUNCATE TABLE等高危DDL操作，因为对于这些操作，inception在备份时只能备份METADATA，而不会备份数据！
+    如果识别到包含高危操作，则返回“审核不通过”
+    """
+    result_list = []
+    critical_sql_found = 0
+    for row in sql_content.rstrip(';').split(';'):
+        if re.match(
+                r"([\s\S]*)drop(\s+)database(\s+.*)|([\s\S]*)drop(\s+)table(\s+.*)|([\s\S]*)truncate(\s+)partition(\s+.*)|([\s\S]*)truncate(\s+)table(\s+.*)",
+                row.lower()
+        ):
+            result = (
+                '',
+                '',
+                2,
+                '驳回高危SQL',
+                '不能包含【DROP DATABASE】|【DROP TABLE】|【TRUNCATE PARTITION】|【TRUNCATE TABLE】关键字！',
+                row,
+                '',
+                '',
+                '',
+                ''
+            )
+            critical_sql_found = 1
+        else:
+            result = ('', '', 0, '', 'None', row, '', '', '', '')
+        result_list.append(result)
+
+    if critical_sql_found == 1:
+        return result_list
+    else:
+        return None
+
+
+def pre_check(sql_content):
+    """
+    在提交给inception之前，预先识别一些Inception不能正确审核的SQL,比如"alter table t1;"或"alter table test.t1;" 以免导致inception core dump
+    :param sql_content:
+    :return:
+    """
+    result_list = []
+    syntax_error_sql_found = 0
+    for row in sql_content.rstrip(';').split(';'):
+        if re.match(
+                r"(\s*)alter(\s+)table(\s+)(\S+)(\s*);|(\s*)alter(\s+)table(\s+)(\S+)\.(\S+)(\s*);",
+                row.lower() + ";"
+        ):
+            result = ('', '', 2, 'SQL语法错误', 'ALTER must have options', row, '', '', '', '')
+            syntax_error_sql_found = 1
+        else:
+            result = ('', '', 0, '', 'None', row, '', '', '', '')
+        result_list.append(result)
+
+    if syntax_error_sql_found == 1:
+        return result_list
+    else:
+        return None
 
 
 def sql_auto_review(sql_content, db_in_name, is_split="no"):
@@ -36,8 +137,8 @@ def sql_auto_review(sql_content, db_in_name, is_split="no"):
                              inception_magic_start;\
                              %s\
                              inception_magic_commit;" % (db_user, db_password, db_host, str(db_port), sql_content)
-                split_result = fetchall(sql_split, current_app.config['INCEPTION_HOST'],
-                                        current_app.config['INCEPTION_PORT'], '', '', '')
+                split_result = fetch_all(sql_split, current_app.config['INCEPTION_HOST'],
+                                         current_app.config['INCEPTION_PORT'], '', '', '')
                 tmp_list = []
                 for split_row in split_result:
                     sql_tmp = split_row[1]
@@ -45,15 +146,15 @@ def sql_auto_review(sql_content, db_in_name, is_split="no"):
                             inception_magic_start;\
                             %s\
                             inception_magic_commit;" % (db_user, db_password, db_host, str(db_port), sql_tmp)
-                    review_result = fetchall(sql, current_app.config['INCEPTION_HOST'],
-                                             current_app.config['INCEPTION_PORT'], '', '', '')
+                    review_result = fetch_all(sql, current_app.config['INCEPTION_HOST'],
+                                              current_app.config['INCEPTION_PORT'], '', '', '')
                     tmp_list.append(review_result)
 
                 # 二次加工下
                 final_list = []
                 for split_row in tmp_list:
                     for sql_row in split_row:
-                        final_list.append(list[sql_row])
+                        final_list.append(list(sql_row))
                 result = final_list
             else:
                 # 工单审核使用
@@ -61,7 +162,7 @@ def sql_auto_review(sql_content, db_in_name, is_split="no"):
                         inception_magic_start;\
                         %s\
                         inception_magic_commit;" % (db_user, db_password, db_host, str(db_port), sql_content)
-                result = fetchall(sql, current_app.config['INCEPTION_HOST'], current_app.config['INCEPTION_PORT'], '',
-                                  '', '')
+                result = fetch_all(sql, current_app.config['INCEPTION_HOST'], current_app.config['INCEPTION_PORT'], '',
+                                   '', '')
 
     return result

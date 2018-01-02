@@ -98,3 +98,29 @@ def audit_work_detail(id):
         content[5] = content[5].split('\r\n')
 
     return render_template('audit/work_detail.html', work=work, list_content=list_content, backtimer=backtimer)
+
+
+@audit.route('/audit/work/cancel/<int:id>')
+@login_required
+@audit_permission.require(http_exception=403)
+def audit_work_cancel(id):
+    work = Work.query.get(id)
+    work.status = 6
+    work.finish_time = datetime.now()
+    db.session.add(work)
+    db.session.commit()
+
+    return redirect(url_for('.audit_work_dealt'))
+
+
+@audit.route('/audit/work/reject/<int:id>')
+@login_required
+@audit_permission.require(http_exception=403)
+def audit_work_reject(id):
+    work = Work.query.get(id)
+    work.status = 7
+    work.finish_time = datetime.now()
+    db.session.add(work)
+    db.session.commit()
+
+    return redirect(url_for('.audit_work_dealt'))

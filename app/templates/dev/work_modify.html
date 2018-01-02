@@ -1,0 +1,195 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Inception
+            <small>MySQL</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ url_for('main.dashboard') }}"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="{{ url_for('dev.dev_work') }}"> Workers</a></li>
+            <li class="active">Modify Worker</li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Quick Modify</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <!-- form start -->
+                    <form role="form" method="post" action="{{ url_for('dev.dev_work_modify', id=work.id) }}">
+                        {{ form.hidden_tag() }}
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label for="WorkName">WorkName</label>
+                                <input type="text" class="form-control" name="{{ form.name.name }}" value="{{ work.name }}"
+                                       disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>DB</label>
+                                <select id="{{ form.db_ins.name }}" class="form-control select2"
+                                        name="{{ form.db_ins.name }}" required="required"
+                                        style="width: 100%;">
+                                    {% for db_in in db_ins %}
+                                        <option value="{{ db_in.name }}">{{ db_in.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Shard</label>
+                                <select id="{{ form.shard.name }}" class="form-control select2"
+                                        name="{{ form.shard.name }}" required="required"
+                                        style="width: 100%;">
+                                    <option value="0">No Shard</option>
+                                    <option value="64">64</option>
+                                    <option value="256">256</option>
+                                    <option value="512">512</option>
+                                    <option value="1024">1024</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Backup</label>
+                                <br>
+                                <input type="checkbox" name="{{ form.backup.name }}" class="flat-red" value="True" checked>
+                            </div>
+                            <div class="form-group">
+                                <label>Audit</label>
+                                <select class="form-control select2" name="{{ form.audit.name }}" required="required"
+                                        style="width: 100%;">
+                                    {% for audit in audits %}
+                                        <option value="{{ audit.name }}">{{ audit.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>SQL Content</label>
+                                <textarea id="{{ form.sql_content.name }}" class="form-control"
+                                          name="{{ form.sql_content.name }}" rows="3" required="required"
+                                          placeholder="Enter SQL Content"></textarea>
+                                <br>
+                                <button type="button" class="btn btn-primary" onclick="sql_check()">SQL Check</button>
+                            </div>
+                        </div>
+                        <!-- /.box-body -->
+
+                        <div class="box-footer">
+                            <button type="reset" class="btn btn-primary">Reset</button>
+                            &nbsp;&nbsp;
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.box -->
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">SQL Check Result</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body" id="sql_check_result">
+
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+
+    </section>
+    <!-- /.content -->
+
+{% endblock %}
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{{ url_for('static',filename='vendor/select2/js/select2.full.min.js') }}"></script>
+    <!-- iCheck 1.0.1 -->
+    <script src="{{ url_for('static',filename='plugins/iCheck/icheck.min.js') }}"></script>
+    <!-- SweetAlert2 -->
+    <script src="{{ url_for('static',filename='vendor/sweetalert2/sweetalert2.min.js') }}"></script>
+{% endblock %}
+
+{% block custom %}
+    <script>
+        $(function () {
+            //Initialize Select2 Elements
+            $('.select2').select2();
+
+            //iCheck for checkbox and radio inputs
+            $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+                checkboxClass: 'icheckbox_minimal-blue',
+                radioClass: 'iradio_minimal-blue'
+            });
+            //Red color scheme for iCheck
+            $('input[type="checkbox"].minimal-red, input[type="radio"].minimal-red').iCheck({
+                checkboxClass: 'icheckbox_minimal-red',
+                radioClass: 'iradio_minimal-red'
+            });
+            //Flat red color scheme for iCheck
+            $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({
+                checkboxClass: 'icheckbox_flat-green',
+                radioClass: 'iradio_flat-green'
+            });
+        })
+    </script>
+{% endblock %}
+
+{% block ajax %}
+    <script>
+        function sql_check() {
+            var result = true;
+            var sql_content = $("#{{ form.sql_content.name }}").val();
+            var db_in = $("#{{ form.db_ins.name }}").val();
+            var shard = $("#{{ form.shard.name }}").val();
+
+            if (sql_content === null || sql_content.trim() === "") {
+                swal('Oops...', 'SQL Content cat not be null', 'error');
+                return result = false;
+            } else if (db_in.length === 0) {
+                swal('Oops...', 'Must choose a db instance', 'error')
+                return result = false;
+            }
+
+            if (result === true) {
+                $.ajax({
+                    type: "post",
+                    url: "{{ url_for('dev.dev_work_check') }}",
+                    dataType: "json",
+                    data: {
+                        'sql_content': sql_content,
+                        'db_in': db_in,
+                        'shard': shard
+                    },
+                    success: function (data) {
+                        if (data.status === 0) {
+                            var result = data.data;
+                            var finalHtml = "<div id='result'><table class='table'><thead><tr><th>sql</th><th>Check result</th></tr></thead><tbody>";
+                            for (var i = 0; i < result.length; i++) {
+                                if (result[i][4] !== "None") {
+                                    finalresult = result[i][4].replace(/\n/g, "<br>");
+                                    finalsql = result[i][5].replace(/\r\n/g, "<br>nbsp;nbsp;nbsp;nbsp;");
+                                    finalsql = finalsql.replace(/,/g, ",<br>");
+                                    finalHtml += "<tr><td><font color='#FF0000'>" + finalsql + "</font></td><td><font color='#FF0000'>" + finalresult + "</font></td></tr>"
+                                } else {
+                                    finalHtml += "<tr><td><font color='#00A600'>" + result[i][5] + "</font></td><td><font color='#00A600'>" + result[i][4] + "</font></td></tr>"
+                                }
+                            }
+                            finalHtml += "</tbody></table></div>";
+                            $('#result').remove();
+                            $('#sql_check_result').append(finalHtml);
+                        } else {
+                            swal(data.msg, 'error');
+                        }
+                    }
+                })
+            }
+
+        }
+    </script>
+{% endblock %}

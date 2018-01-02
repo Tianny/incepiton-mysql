@@ -21,14 +21,14 @@ def fetch_all(sql_content, host, port, user, password, db_in):
     result = None
     conn = None
     cur = None
-    sql_content = sql_content.encode('utf-8')
+    sql_content = sql_content.encode('utf-8').decode('utf-8')
 
     try:
         conn = pymysql.connect(
             host=host,
             user=user,
             password=password,
-            db_in=db_in,
+            db=db_in,
             port=port,
             charset='utf8mb4'
         )
@@ -98,6 +98,7 @@ def pre_check(sql_content):
             syntax_error_sql_found = 1
         else:
             result = ('', '', 0, '', 'None', row, '', '', '', '')
+
         result_list.append(result)
 
     if syntax_error_sql_found == 1:
@@ -114,7 +115,8 @@ def sql_auto_review(sql_content, db_in_name, is_split="no"):
     db_host = db_in.master_host
     db_port = db_in.master_port
     db_user = db_in.username
-    db_password = base64.b64decode(db_in.password)
+    db_password = base64.b64decode(db_in.password.encode('utf-8'))
+    db_password = db_password.decode('utf-8')
 
     critical_ddl_config = current_app.config['CRITICAL_DDL_ON_OFF']
     if critical_ddl_config == "ON":

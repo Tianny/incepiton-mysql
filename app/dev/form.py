@@ -15,3 +15,12 @@ class WorkForm(FlaskForm):
     backup = BooleanField(u'backup')
     audit = StringField(u'Auditor', validators=[DataRequired()])
     sql_content = TextAreaField(u'SqlContent', validators=[DataRequired()])
+
+
+class UpdateWorkForm(FlaskForm):
+    name = StringField(u'WorkName')
+    db_ins = StringField(u'DBName', validators=[DataRequired()])
+    shard = StringField(u'Shard', validators=[DataRequired()])
+    backup = BooleanField(u'Backup')
+    audit = StringField(u'Auditor', validators=[DataRequired()])
+    sql_content = TextAreaField(u'SqlContent', validators=[DataRequired()])

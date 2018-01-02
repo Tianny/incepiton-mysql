@@ -1,11 +1,12 @@
 from datetime import datetime
+import json
 
 from flask import render_template, url_for, redirect
 from flask_login import login_required, current_user
 
 from .. import db
 from .. import audit_permission
-from ..models import Dbapply, User, Dbconfig
+from ..models import Dbapply, User, Dbconfig, Work
 from . import audit
 
 
@@ -57,3 +58,43 @@ def audit_resource_cancel(id):
     db.session.commit()
 
     return redirect(url_for('.audit_resource_dealt'))
+
+
+@audit.route('/audit/work/pending')
+@login_required
+@audit_permission.require(http_exception=403)
+def audit_work_pending():
+    works = Work.query.filter(Work.audit_name == current_user.name, Work.status == 1, Work.timer == None)
+
+    return render_template('audit/work_pending.html', works=works)
+
+
+@audit.route('/audit/work/dealt')
+@login_required
+@audit_permission.require(http_exception=403)
+def audit_work_dealt():
+    works = Work.query.filter(Work.audit_name == current_user.name, Work.status != 1)
+
+    return render_template('audit/work_dealt.html', works=works)
+
+
+@audit.route('/audit/work/detail/<int:id>')
+@login_required
+@audit_permission.require(http_exception=403)
+def audit_work_detail(id):
+    work = Work.query.get(id)
+    backtimer = 0
+
+    if work.timer is not None:
+        backtimer = 1
+
+    if work.stats == 0 or work.status == 4:
+        list_content = json.loads(work.execute_result)
+    else:
+        list_content = json.loads(work.auto_review)
+
+    for content in list_content:
+        content[4] = content[4].split('\n')
+        content[5] = content[5].split('\r\n')
+
+    return render_template('audit/work_detail.html', work=work, list_content=list_content, backtimer=backtimer)

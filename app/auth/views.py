@@ -1,3 +1,4 @@
+from werkzeug.security import generate_password_hash
 from flask import render_template, current_app, g, flash, url_for, redirect
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_principal import Identity, AnonymousIdentity, identity_changed
@@ -48,7 +49,7 @@ def login():
             if validator is not None:
                 user = User()
                 user.name = form.username.data
-                user.hash_pass = user.set_password(form.password.data)
+                user.hash_pass = generate_password_hash(form.password.data)
                 user.role = 'dev'
                 user.email = form.username.data + '@in66.com'
                 db.session.add(user)

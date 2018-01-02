@@ -151,9 +151,8 @@
                             </span>
                         </a>
                         <ul class="treeview-menu">
-                            <li><a href="{{ url_for('dev.dev_resource') }}"><i class="fa fa-circle-o"></i>View</a></li>
-                            <li><a href="{{ url_for('dev.dev_resource_request') }}"><i class="fa fa-circle-o"></i> Add</a></li>
-                            <li><a href="{{ url_for('dev.dev_resource_status') }}"><i class="fa fa-circle-o"></i> Status</a></li>
+                            <li><a href="{{ url_for('dev.dev_work') }}"><i class="fa fa-circle-o"></i>View</a></li>
+                            <li><a href="{{ url_for('dev.dev_work_create') }}"><i class="fa fa-circle-o"></i> Create</a></li>
                         </ul>
                     </li>
                 {% endif %}
@@ -170,6 +169,21 @@
                         <ul class="treeview-menu">
                             <li><a href="{{ url_for('audit.audit_resource_pending') }}"><i class="fa fa-circle-o"></i> Pending</a></li>
                             <li><a href="{{ url_for('audit.audit_resource_dealt') }}"><i class="fa fa-circle-o"></i> Dealt</a></li>
+
+                        </ul>
+                    </li>
+
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-tasks"></i>
+                            <span>Work Sheet</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="{{ url_for('audit.audit_work_pending') }}"><i class="fa fa-circle-o"></i> Pending</a></li>
+                            <li><a href="{{ url_for('audit.audit_work_dealt') }}"><i class="fa fa-circle-o"></i> Dealt</a></li>
 
                         </ul>
                     </li>

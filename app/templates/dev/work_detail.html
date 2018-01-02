@@ -1,0 +1,177 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<input type="hidden" id="workflowDetail_id" name="workflowid" value="{{ work.id }}">
+<input type="hidden" id="workflowDetail_timer" name="workflowtimer" value="{{ work.timer }}">
+
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Inception
+            <small>MySQL</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ url_for('main.dashboard') }}"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="{{ url_for('dev.dev_work') }}"> Work Sheet</a></li>
+            <li class="active">Work Detail</li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <h3 class="box-title">WorkName：{{ work.name }}</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <table id="example1" class="table table-bordered table-hover" style="width: 100%">
+                            <thead>
+                            <tr>
+                                <th>DB</th>
+                                <th>Auditor</th>
+                                <th>Shard</th>
+                                <th>Backup</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>{{ work.db_name }}</td>
+                                <td>{{ work.audit_name }}</td>
+                                <td>{{ work.shard }}</td>
+                                <td>
+                                    {% if work.backup == true %}
+                                        True
+                                    {% else %}
+                                        False
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if work.status == 0 %}
+                                    <span style="color: green; ">
+                                    {% else %}
+                                        <span style="color: red; ">
+                                    {% endif %}
+                                        <B id="workflowDetail_status">
+                                            {% if work.status == 0 %}
+                                                Success
+                                            {% eilf work.status == 1 %}
+                                                Pending
+                                            {% elif work.status == 2 %}
+                                                Check Failed
+                                            {% elif work.status == 3 %}
+                                                Executing
+                                            {% elif work.status == 4 %}
+                                                Error
+                                            {% elif work.status == 5 %}
+                                                Dev Cancelled
+                                            {% elif work.status == 6 %}
+                                                Audit Cancelled
+                                            {% elif work.status == 7 %}
+                                                Audit Rejected
+                                            {% elif work.status == 8 %}
+                                                Timing
+                                            {% endif %}
+                                        </B>
+                                    </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">In Time Executing</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body no-padding">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <td>ID</td>
+                                <td>Sql</td>
+                                <td>Check Result</td>
+                                <td>Row Affected</td>
+                                <td>Time</td>
+                                <td>IStatus</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in list_content %}
+                                <tr>
+                                    <td>
+                                        {% if loop.last %}
+                                        <input type="hidden" id="sqlMaxRowNumber" value="{{ loop.index }}">
+                                        {% endif %}
+                                        {{ loop.index }}
+                                    </td>
+                                    <td>
+                                        {% for sql in row.5 %}
+                                        {{ sql }}
+                                            {% if not loop.last %}
+                                            <br>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for statement in row.4 %}
+                                        {{ statement }}
+                                            {% if not loop.last %}
+                                            <br>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>{{ row.6 }}</td>
+                                    <td>{{ row.9 }}</td>
+                                    <td id="td_{{ loop.index }}">
+                                        {% if work.status == 3 %}
+                                        <div class="progress progress-xs progress-striped active">
+                                            <div class="progress-bar progress-bar-success" style="width: 90%">
+                                                <span id="span_{{ loop.index }}"></span>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                            {{ row.3 }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+
+    </section>
+    <!-- /.content -->
+
+{% endblock %}
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{{ url_for('static',filename='vendor/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='vendor/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+{% endblock %}
+
+{% block custom %}
+    <script>
+        $(function () {
+            $('#example1').DataTable({
+                scrollX: true
+            });
+        })
+    </script>
+{% endblock %}
+
+{% block ajax %}
+
+{% endblock %}

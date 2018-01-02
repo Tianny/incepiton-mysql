@@ -56,7 +56,8 @@
                             </div>
                             <div class="form-group">
                                 <label>Backup</label>
-                                <input type="radio" name="{{ form.backup.name }}" class="flat-red" checked>
+                                <br>
+                                <input type="checkbox" name="{{ form.backup.name }}" class="flat-red" value="True" checked>
                             </div>
                             <div class="form-group">
                                 <label>Audit</label>
@@ -72,6 +73,7 @@
                                 <textarea id="{{ form.sql_content.name }}" class="form-control"
                                           name="{{ form.sql_content.name }}" rows="3" required="required"
                                           placeholder="Enter SQL Content"></textarea>
+                                <br>
                                 <button type="button" class="btn btn-primary" onclick="sql_check()">SQL Check</button>
                             </div>
                         </div>
@@ -142,11 +144,11 @@
     <script>
         function sql_check() {
             var result = true;
-            var sqlContent = $("#{{ fom.sql_content.name }}").val();
-            var db_in = $("#{{ fom.db_ins.name }}").val();
-            var shard = $("#{{ fom.shard.name }}").val();
+            var sql_content = $("#{{ form.sql_content.name }}").val();
+            var db_in = $("#{{ form.db_ins.name }}").val();
+            var shard = $("#{{ form.shard.name }}").val();
 
-            if (sqlContent === null || sqlContent.trim() === "") {
+            if (sql_content === null || sql_content.trim() === "") {
                 swal('Oops...', 'SQL Content cat not be null', 'error');
                 return result = false;
             } else if (db_in.length === 0) {
@@ -160,19 +162,19 @@
                     url: "{{ url_for('dev.dev_work_check') }}",
                     dataType: "json",
                     data: {
-                        'sqlContent': sqlContent,
+                        'sql_content': sql_content,
                         'db_in': db_in,
                         'shard': shard
                     },
                     success: function (data) {
                         if (data.status === 0) {
                             var result = data.data;
-                            var finalHtml = "<div id='result'><table class='table'><thead><tr><th>sql语句</th><th>自动审核结果</th></tr></thead><tbody>";
+                            var finalHtml = "<div id='result'><table class='table'><thead><tr><th>sql</th><th>Check result</th></tr></thead><tbody>";
                             for (var i = 0; i < result.length; i++) {
-                                if (result[i][4] != "None") {
-                                    finalresult = result[i][4].replace(/\n/g, "<br>")
-                                    finalsql = result[i][5].replace(/\r\n/g, "<br>nbsp;nbsp;nbsp;nbsp;")
-                                    finalsql = finalsql.replace(/,/g, ",<br>")
+                                if (result[i][4] !== "None") {
+                                    finalresult = result[i][4].replace(/\n/g, "<br>");
+                                    finalsql = result[i][5].replace(/\r\n/g, "<br>nbsp;nbsp;nbsp;nbsp;");
+                                    finalsql = finalsql.replace(/,/g, ",<br>");
                                     finalHtml += "<tr><td><font color='#FF0000'>" + finalsql + "</font></td><td><font color='#FF0000'>" + finalresult + "</font></td></tr>"
                                 } else {
                                     finalHtml += "<tr><td><font color='#00A600'>" + result[i][5] + "</font></td><td><font color='#00A600'>" + result[i][4] + "</font></td></tr>"

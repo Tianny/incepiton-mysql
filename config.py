@@ -46,10 +46,10 @@ class DevelopmentConfig(Config):
     INCEPTION_REMOTE_BACKUP_PASSWORD = 'inception_web'
 
     # slow log option
-    SLOW_LOG_HOST = '10.10.106.68'
-    SLOW_LOG_PORT = 3306
-    SLOW_LOG_USER = 'inception'
-    SLOW_LOG_PASSWORD = 'inception'
+    # SLOW_LOG_HOST = '10.10.106.68'
+    # SLOW_LOG_PORT = 3306
+    # SLOW_LOG_USER = 'inception'
+    # SLOW_LOG_PASSWORD = 'inception'
 
     # Flask LDAP settings
     LDAP_OPENLDAP = True

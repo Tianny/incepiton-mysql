@@ -33,7 +33,9 @@ def db_create():
         dbconfig.slave_host = form.slave_host.data
         dbconfig.slave_port = form.slave_port.data
         dbconfig.username = form.username.data
-        dbconfig.password = base64.b64encode(form.password.data.encode())
+        print(type(form.password.data))
+        dbconfig.password = base64.b64encode(form.password.data.encode('utf-8'))
+        print(type(dbconfig.password))
         db.session.add(dbconfig)
         db.session.commit()
 

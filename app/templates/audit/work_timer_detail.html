@@ -1,0 +1,131 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+    <input type="hidden" id="workflowTask_id" name="workflowid" value="{{ work.task_id }}">
+
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Inception
+            <small>MySQL</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ url_for('main.dashboard') }}"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="{{ url_for('audit.work_timer_view') }}"> Home</a></li>
+            <li class="active"> Work Timer Detail</li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <h3 class="box-title">Work Timer Detail</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <table id="example1" class="table table-bordered table-hover" style="width: 100%">
+                            <thead>
+                            <tr>
+                                <th>DB</th>
+                                <th>Dev</th>
+                                <th>Backup</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ work.db_name }}</td>
+                                    <td>{{ work.dev_name }}</td>
+                                    <td>
+                                        {% if work.backup == true %}
+                                        True
+                                        {% else %}
+                                        False
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <B id="workflowCelery_status"></B>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-block btn-sm bg-navy btn-flat timer_set"
+                                                onclick="location.href='{{ url_for('audit.work_timer', id=work.id) }}'">
+                                            Timer Set
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+
+    </section>
+    <!-- /.content -->
+
+{% endblock %}
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{{ url_for('static',filename='vendor/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='vendor/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+{% endblock %}
+
+{% block custom %}
+    <script>
+        $(function () {
+            $('#example1').DataTable({
+                scrollX: true
+            });
+        })
+    </script>
+{% endblock %}
+
+{% block ajax %}
+
+<script>
+var workflowtaskid = $("#workflowTask_id").val();
+
+var key;
+$(document).ready(function(){
+    var status = $("#workflowCelery_status").text();
+    if (status === 'Executing' || status === ''){
+        getWorkCeleryStatus(workflowtaskid);
+        key = setInterval(function(){
+            getWorkCeleryStatus(workflowtaskid);
+        }, 1000)
+    }
+});
+
+function getWorkCeleryStatus(wtid){
+    $.ajax({
+        type: "post",
+        url: "{{ url_for('audit.timer_celery_status') }}",
+        dataType: "json",
+        data: {
+            workflowtid: wtid
+        },
+        success: function (data) {
+            wftStatus = data.status;
+            content = data.msg;
+            // console.log(typeof(wftStatus));
+            console.log('wftStatus ' + wftStatus);
+            console.log(content);
+            document.getElementById("workflowCelery_status").innerHTML = content;
+            if (content !== '' && content !== 'Wait or Unknown task') {
+                $("button.timer_set").attr('disabled', 'True');
+            }
+            if (wftStatus === 4 || wftStatus === 0 || wftStatus === -1) {
+                clearInterval(key);
+    }
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -87,3 +87,4 @@ class Work(db.Model):
     finish_time = db.Column(db.DateTime)
     auto_review = db.Column(db.Text(16777215))
     execute_result = db.Column(db.TEXT(16777215))
+    man_review_time = db.Column(db.DateTime)

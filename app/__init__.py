@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from flask_simpleldap import LDAP
 from flask_principal import Principal, identity_loaded, RoleNeed, UserNeed, Permission
+from flask_celery import Celery
 
 from config import config
 
@@ -23,6 +24,9 @@ principals = Principal()
 dev_permission = Permission(RoleNeed('dev'))
 audit_permission = Permission(RoleNeed('audit'))
 admin_permission = Permission(RoleNeed('admin'))
+
+# celery
+celery = Celery()
 
 
 def create_app(config_name):
@@ -46,6 +50,9 @@ def create_app(config_name):
 
         if hasattr(current_user, 'role'):
             identity.provides.add(RoleNeed(current_user.role))
+
+    # celery
+    celery.init_app(app)
 
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')

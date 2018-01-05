@@ -1,0 +1,86 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Inception
+            <small>MySQL</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ url_for('main.dashboard') }}"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="{{ url_for('audit.work_timer_detail', id=work.id) }}"> Work Detail</a></li>
+            <li class="active"> Work Timer Set</li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-header box-primary">
+                        <h3 class="box-title">Work Timer Table</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <form method="post" action="{{ url_for('audit.audit_work_timer', id=work.id) }}">
+                            <div class="form-group">
+                                <label>状态：</label>
+                                {% if work.timer %}
+                                定时执行事件为 {{ work.timer }}
+                                {% else %}
+                                未设置定时时间
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label>Date:</label>
+                                <div class="input-group date">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                <input type="text" class="form-control pull-right" id="dt" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                {% if work.timer %}
+                                <button type="button" class="btn btn-block btn-sm btn-danger btn-flat"
+                                        onclick="location.href='{{ url_for('audit.work_timer_cancel', id=work.id) }}'">
+                                    Cancel
+                                </button>
+                                {% endif %}
+
+                                <button type="button" class="btn btn-block btn-sm btn-info btn-flat">
+                                    Set
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+
+    </section>
+    <!-- /.content -->
+
+{% endblock %}
+
+{% block js %}
+    <!-- bootstrap datepicker -->
+    <script src="{{ url_for('static',filename='vendor/bootstrap-datepicker/bootstrap-datepicker.min.js') }}"></script>
+{% endblock %}
+
+{% block custom %}
+    <script>
+        $(function () {
+            $('#dt').datepicker({
+                pickDate: true,
+                pickTime: true
+            })
+        })
+    </script>
+{% endblock %}

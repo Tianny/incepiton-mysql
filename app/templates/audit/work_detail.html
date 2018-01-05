@@ -288,7 +288,7 @@
             var pct;
             $.ajax({
                 type: "post",
-                url: "{{ url_for('main.getOscPercent') }}",
+                url: "{{ url_for('main.osc_percent') }}",
                 dataType: "json",
                 data: {
                     workflowid: wid,
@@ -372,7 +372,7 @@
             $.ajax({
                 type: "post",
                 async: false,
-                url: "{{ url_for('audit.stopOscProgress') }}",
+                url: "{{ url_for('audit.stop_osc_progress') }}",
                 dataType: "json",
                 data: {
                     workflowid: wid,
@@ -396,7 +396,7 @@
             $.ajax({
                 type: "post",
                 async: false,
-                url: "{{ url_for('audit.getWorkflowStatus') }}",
+                url: "{{ url_for('audit.work_flow_status') }}",
                 dataType: "json",
                 data: {
                     workflowid: wid

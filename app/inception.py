@@ -1,10 +1,13 @@
 import base64
 import re
+import json
+from datetime import datetime
 
 import pymysql
 from flask import current_app
 
-from .models import Dbconfig
+from . import db
+from .models import Dbconfig, Work
 
 
 def fetch_all(sql_content, host, port, user, password, db_in):
@@ -168,3 +171,97 @@ def sql_auto_review(sql_content, db_in_name, is_split="no"):
                                    '', '')
 
     return result
+
+
+def execute_final(app, id):
+    """
+    将sql交给inception进行最终执行，并返回结果
+    :param app:
+    :param id:
+    :return:
+    """
+    with app.app_context():
+        work = Work.query.filter(Work.id == id).first()
+        db_in = Dbconfig.query.filter(Dbconfig.name == work.db_name).first()
+        db_host = db_in.master_host
+        db_port = db_in.master_port
+        db_user = db_in.username
+        db_password = base64.b64decode(db_in.password.encode('utf-8'))
+
+        if work.backup == True:
+            str_backup = "--enable-remote-backup;"
+        else:
+            str_backup = "--disable-remote-backup;"
+
+        # 根据inception要求，执行前最好先spilt一下
+        sql_split = "/*--user=%s; --password=%s; --host=%s; --enable-execute;--port=%s; --enable-ignore-warnings;--enable-split;*/\
+             inception_magic_start;\
+             %s\
+             inception_magic_commit;" % (db_user, db_password, db_host, str(db_port), work.sql_content)
+        spilt_result = fetch_all(sql_split, current_app.config['INCEPTION_HOST'], current_app.config['INCEPTION_PORT'],
+                                 '', '', '')
+        tmp_list = []
+
+        # 对split好的结果，再次交给inception执行。这里无需保持长连接执行，短连接即可
+        for split_row in spilt_result:
+            sql_tmp = split_row[1]
+            sql_execute = "/*--user=%s;--password=%s;--host=%s;--enable-execute;--port=%s; --enable-ignore-warnings;%s*/\
+                                inception_magic_start;\
+                                %s\
+                                inception_magic_commit;" % (
+                db_user, db_password, db_host, str(db_port), str_backup, sql_tmp)
+
+            execute_result = fetch_all(sql_execute, current_app.config['INCEPTION_HOST'],
+                                       current_app.config['INCEPTION_PORT'], '', '', '')
+
+            for sql_row in execute_result:
+                tmp_list.append(sql_row)
+
+            # 每执行一次，就将执行结果更新到工单的execute_result，便于获取osc进度时对比
+            work.execute_result = json.dumps(tmp_list)
+            db.session.add(work)
+            db.session.commit()
+
+        # 二次加工一下，目的是为了和sql_auto_review()函数的return保持格式一致，便于在detail页面渲染.
+        final_status = 0
+        final_list = []
+        for sql_row in tmp_list:
+            # 如果发现任何一个执行结果里有errLevel为1或2，并且stage_status列没有包含Execute Successfully字样，则判断为异常
+            if (sql_row[2] == 1 or sql_row[2] == 2) and re.match(r"\w*Execute Successfully\w*", sql_row[3]) is None:
+                final_status = 4
+            final_list.append(list(sql_row))
+
+        json_result = json.dumps(final_list)
+        work.execute_result = json_result
+        work.finish_time = datetime.now()
+        work.status = final_status
+
+        db.session.add(work)
+        db.session.commit()
+
+
+def get_osc(sql_sha1):
+    sql_str = "inception get osc_percent '%s'" % sql_sha1
+    result = fetch_all(sql_str, current_app.config['INCEPTION_HOST'], current_app.config['INCEPTION_PORT'], '', '', '')
+    if len(result) > 0:
+        percent = result[0][3]
+        time_remain = result[0][4]
+        pct_result = {'status': 0, 'msg': 'ok', 'data': {'percent': percent, 'time_remain': time_remain}}
+    else:
+        pct_result = {'status': 1, 'msg': '没找到该SQL的进度信息，是否已经执行完毕？', 'data': {'percent': -100, 'time_remain': -100}}
+
+    return pct_result
+
+
+def stop_osc(sql_sha1):
+    """已知SHA1值，调用inception命令停止OSC进程，涉及的Inception命令和注意事项
+    请参考http://mysql-inception.github.io/inception-document/osc/
+    """
+    sql_str = "inception stop alter '%s'" % sql_sha1
+    result = fetch_all(sql_str, current_app.config['INCEPTION_HOST'], current_app.config['INCEPTION_PORT'], '', '', '')
+    if result is not None:
+        opt_result = {'status': 0, 'msg': '已成功停止OSC进程，请注意清理触发器和临时表', 'data': ""}
+    else:
+        opt_result = {'status': 1, 'msg': 'ERROR 2624 (HY000):未找到OSC执行进程，可能已经执行完成', 'data': ""}
+
+    return opt_result

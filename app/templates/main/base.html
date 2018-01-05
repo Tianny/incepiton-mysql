@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='plugins/iCheck/all.css') }}">
     <!-- SweetAlert2-->
     <link rel="stylesheet" href="{{ url_for('static',filename='vendor/sweetalert2/sweetalert2.min.css') }}">
+    <!-- bootstrap datepicker -->
+    <link rel="stylesheet" href="{{ url_for('static',filename='vendor/bootstrap-datepicker/bootstrap-datepicker.min.css') }}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ url_for('static',filename='dist/css/AdminLTE.min.css') }}">
     <!-- AdminLTE Skins. Choose a skin from the css/skins
@@ -169,7 +171,6 @@
                         <ul class="treeview-menu">
                             <li><a href="{{ url_for('audit.audit_resource_pending') }}"><i class="fa fa-circle-o"></i> Pending</a></li>
                             <li><a href="{{ url_for('audit.audit_resource_dealt') }}"><i class="fa fa-circle-o"></i> Dealt</a></li>
-
                         </ul>
                     </li>
 
@@ -184,8 +185,17 @@
                         <ul class="treeview-menu">
                             <li><a href="{{ url_for('audit.audit_work_pending') }}"><i class="fa fa-circle-o"></i> Pending</a></li>
                             <li><a href="{{ url_for('audit.audit_work_dealt') }}"><i class="fa fa-circle-o"></i> Dealt</a></li>
-
                         </ul>
+                    </li>
+
+                    <li class="treeview">
+                        <a href="{{ url_for('audit.audit_work_timer_view') }}">
+                            <i class="fa fa-calendar"></i>
+                            <span>Timer</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
                     </li>
                 {% endif %}
 

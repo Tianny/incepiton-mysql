@@ -63,10 +63,10 @@ class DevelopmentConfig(Config):
     LDAP_LOGIN_VIEW = 'login'
 
     # Celery Broker setting
-    CELERY_BROKER_URL = 'redis://10.10.106.68:6379'
+    CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
 
     # Celery backend setting
-    CELERY_RESULT_BACKEND = 'redis://10.10.106.68:6379'
+    CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
 
     # Celery TimeZone
     CELERY_TIMEZONE = 'UTC'
@@ -77,6 +77,9 @@ class DevelopmentConfig(Config):
 
     # Celery ETA/countdown setting for solving tasks executed again, and again in a loop
     BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 18000}  # 5 hours
+
+    # Celery Tasks
+    CELERY_IMPORTS = ("app.tasks",)
 
 
 class TestingConfig(Config):

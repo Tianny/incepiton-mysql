@@ -92,7 +92,7 @@ def audit_work_detail(id):
     if work.timer is not None:
         backtimer = 1
 
-    if work.stats == 0 or work.status == 4:
+    if work.status == 0 or work.status == 4:
         list_content = json.loads(work.execute_result)
     else:
         list_content = json.loads(work.auto_review)
@@ -151,7 +151,7 @@ def audit_work_execute():
 
         async_result = execute_task.apply_async(args=[id], task_id=str(id))
 
-    return jsonify({}), 202, {'Location': url_for('.audit_work_view', id=id)}
+    return jsonify({}), 202, {'Location': url_for('.audit_work_detail', id=id)}
 
 
 @audit.route('/audit/timer/work/<int:id>', methods=['GET', 'POST'])
@@ -160,12 +160,12 @@ def audit_work_timer(id):
     work = Work.query.get(id)
     if request.method == "POST":
         data = request.form
-        timer = datetime.strptime(data["dt"], "%Y-%m-%dT%H:%M")
+        timer = datetime.strptime(data["dt"], "%Y-%m-%d %H:%M")
         execute_time = (timer - datetime.now()).seconds
         if execute_time > 0:
             sig = execute_task.signature((id,), countdown=execute_time)
             if work.timer is None:
-                async_result = sig.apply_sync()
+                async_result = sig.apply_async()
                 work.task_id = async_result.id
                 work.timer = timer
                 db.session.add(work)
@@ -212,7 +212,7 @@ def audit_work_timer_detail(id):
     return render_template('audit/work_timer_detail.html', work=work)
 
 
-@audit.route('/timer_celery_status', method=['POST'])
+@audit.route('/timer_celery_status', methods=['POST'])
 @audit_permission.require(http_exception=403)
 def timer_celery_status():
     work_flow_tid = request.form['workflowtid']
@@ -308,7 +308,7 @@ def osc_percent():
 
 @audit.route('/stop_osc', methods=['POST'])
 @audit_permission.require(http_exception=403)
-def stop_osc_progess():
+def stop_osc_progress():
     data = request.form
     work_flow_id = data['workflowid']
     sql_id = data['sql_id']

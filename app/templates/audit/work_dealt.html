@@ -54,7 +54,7 @@
                                     </td>
                                     <td>
                                         {% if work.finish_time %}
-                                        {{ work.finish_name }}
+                                        {{ work.finish_time }}
                                         {% else %}
                                         Unfinished
                                          {% endif %}
@@ -81,8 +81,8 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-block btn-sm bg-navy btn-flat"
-                                                onclick="location.href='{{ url_for('audit.work_view_detail', id=work.id) }}'">
+                                        <button type="button" class="btn btn-block btn-sm bg-blue btn-flat"
+                                                onclick="location.href='{{ url_for('audit.audit_work_detail', id=work.id) }}'">
                                             View
                                         </button>
                                     </td>

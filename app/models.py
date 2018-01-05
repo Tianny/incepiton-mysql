@@ -74,6 +74,7 @@ class Dbapply(db.Model):
 
 class Work(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    task_id = db.Column(db.String(64))
     name = db.Column(db.String(64))
     dev_name = db.Column(db.String(64))
     audit_name = db.Column(db.String(64))

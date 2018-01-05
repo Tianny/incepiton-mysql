@@ -54,13 +54,13 @@
                                 <td>
                                     {% if work.status == 1 %}
                                         {% if work.timer == None %}
-                                            <button type="button" class="btn btn-block btn-sm btn-danger btn-flat"
+                                            <button type="button" class="btn btn-sm bg-purple btn-flat"
                                                 onclick="location.href='{{ url_for('audit.audit_work_cancel', id=work.id) }}'">
                                                 Cancel
                                             </button>
-                                            <button type="button" class="btn btn-block btn-sm btn-danger btn-flat"
+                                            <button type="button" class="btn btn-sm btn-danger btn-flat"
                                                 onclick="location.href='{{ url_for('audit.audit_work_reject', id=work.id) }}'">
-                                                Cancel
+                                                Reject
                                             </button>
                                         {% endif %}
                                         {% if backtimer == 0 %}
@@ -68,12 +68,12 @@
                                                   onsubmit="return false;" style="display: inline-block;">
                                                 <input type="hidden" name="workflowid" value="{{ work.id }}">
                                                 <input type="button" onclick="execute()" id="btnExecute"
-                                                       class="btn btn-block btn-sm btn-success btn-flat"
+                                                       class="btn  btn-sm btn-success btn-flat"
                                                        data-loding-text="Loading"
                                                        value="Execute">
                                             </form>
                                         {% endif %}
-                                        <button type="button" class="btn btn-block btn-sm btn-warning btn-flat"
+                                        <button type="button" class="btn btn-sm bg-orange btn-flat"
                                                 id="timer_button"
                                                 onclick="location.href='{{ url_for('audit.audit_work_timer', id=work.id) }}'">
                                             Timer Execute
@@ -89,7 +89,7 @@
                                         <B id="workflowDetail_status">
                                             {% if work.status == 0 %}
                                                 Success
-                                            {% eilf work.status == 1 %}
+                                            {% elif work.status == 1 %}
                                                 Pending
                                             {% elif work.status == 2 %}
                                                 Check Failed
@@ -189,13 +189,14 @@
                                     </td>
                                     {% if work.status == 0 and work.backup == true %}
                                     <td>
-                                        <button type="button" class="btn btn-block btn-sm btn-success btn-flat"
-                                                onclick="location.href='{{ url_for('audit.audit_rollback', id=work.id) }}';">
-                                            RollBack SQL
-                                        </button>
+{#                                        <button type="button" class="btn btn-block btn-sm btn-success btn-flat"#}
+{#                                                onclick="location.href='{{ url_for('audit.audit_rollback', id=work.id) }}';">#}
+{#                                            RollBack SQL#}
+{#                                        </button>#}
                                     </td>
                                     {% endif %}
                                 </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -288,7 +289,7 @@
             var pct;
             $.ajax({
                 type: "post",
-                url: "{{ url_for('main.osc_percent') }}",
+                url: "{{ url_for('audit.osc_percent') }}",
                 dataType: "json",
                 data: {
                     workflowid: wid,

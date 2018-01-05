@@ -9,8 +9,8 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ url_for('main.dashboard') }}"><i class="fa fa-home"></i> Home</a></li>
-            <li><a href="{{ url_for('audit.work_timer_detail', id=work.id) }}"> Work Detail</a></li>
-            <li class="active"> Work Timer Set</li>
+            <li><a href="{{ url_for('audit.audit_work_detail', id=work.id) }}"> Work Detail</a></li>
+            <li class="active"> Timer Set</li>
         </ol>
     </section>
 
@@ -40,20 +40,20 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                <input type="text" class="form-control pull-right" id="dt" required>
+                                <input type="text" class="form-control pull-right" id="dt" name="dt" required>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 {% if work.timer %}
-                                <button type="button" class="btn btn-block btn-sm btn-danger btn-flat"
-                                        onclick="location.href='{{ url_for('audit.work_timer_cancel', id=work.id) }}'">
-                                    Cancel
+                                <button type="button" class="btn btn-danger btn-flat"
+                                        onclick="location.href='{{ url_for('audit.audit_work_timer_cancel', id=work.id) }}'">
+                                    Cancel Timer
                                 </button>
                                 {% endif %}
 
-                                <button type="button" class="btn btn-block btn-sm btn-info btn-flat">
-                                    Set
+                                <button type="submit" class="btn btn-primary btn-flat">
+                                    Set Timer
                                 </button>
                             </div>
                         </form>
@@ -70,16 +70,17 @@
 {% endblock %}
 
 {% block js %}
-    <!-- bootstrap datepicker -->
-    <script src="{{ url_for('static',filename='vendor/bootstrap-datepicker/bootstrap-datepicker.min.js') }}"></script>
+    <!-- bootstrap datetimepicker -->
+    <script src="{{ url_for('static',filename='vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js') }}"></script>
 {% endblock %}
 
 {% block custom %}
     <script>
         $(function () {
-            $('#dt').datepicker({
-                pickDate: true,
-                pickTime: true
+            $('#dt').datetimepicker({
+                autoclose: true,
+                todayBtn: true,
+                format: 'yyyy-mm-dd hh:ii'
             })
         })
     </script>

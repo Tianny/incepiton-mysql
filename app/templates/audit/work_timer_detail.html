@@ -11,7 +11,7 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ url_for('main.dashboard') }}"><i class="fa fa-home"></i> Home</a></li>
-            <li><a href="{{ url_for('audit.work_timer_view') }}"> Home</a></li>
+            <li><a href="{{ url_for('audit.audit_work_timer_view') }}"> Home</a></li>
             <li class="active"> Work Timer Detail</li>
         </ol>
     </section>
@@ -52,7 +52,7 @@
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-block btn-sm bg-navy btn-flat timer_set"
-                                                onclick="location.href='{{ url_for('audit.work_timer', id=work.id) }}'">
+                                                onclick="location.href='{{ url_for('audit.audit_work_timer', id=work.id) }}'">
                                             Timer Set
                                         </button>
                                     </td>

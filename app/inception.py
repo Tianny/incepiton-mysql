@@ -187,6 +187,7 @@ def execute_final(app, id):
         db_port = db_in.master_port
         db_user = db_in.username
         db_password = base64.b64decode(db_in.password.encode('utf-8'))
+        db_password = db_password.decode('utf-8')
 
         if work.backup == True:
             str_backup = "--enable-remote-backup;"
@@ -198,6 +199,7 @@ def execute_final(app, id):
              inception_magic_start;\
              %s\
              inception_magic_commit;" % (db_user, db_password, db_host, str(db_port), work.sql_content)
+        print(sql_split)
         spilt_result = fetch_all(sql_split, current_app.config['INCEPTION_HOST'], current_app.config['INCEPTION_PORT'],
                                  '', '', '')
         tmp_list = []

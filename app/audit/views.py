@@ -172,7 +172,7 @@ def audit_work_timer(id):
                 db.session.commit()
             else:
                 celery.control.revoke(work.task_id, terminate=True)
-                async_result = sig.apply_sync()
+                async_result = sig.apply_async()
                 work.task_id = async_result.id
                 work.timer = timer
                 db.session.add(work)
@@ -245,7 +245,7 @@ def get_sql_sha1(work_flow_id):
     dict_sha1 = {}
 
     # 使用json.loads方法，将review_content从str转成list
-    list_recheck_result = json.loads(work_flow_detail.auto_reivew)
+    list_recheck_result = json.loads(work_flow_detail.auto_review)
 
     for row_num in range(len(list_recheck_result)):
         id = row_num + 1
@@ -261,7 +261,7 @@ def get_sql_sha1(work_flow_id):
     return dict_sha1
 
 
-@audit.route('/osc_percent')
+@audit.route('/osc_percent', methods=['POST'])
 @audit_permission.require(http_exception=403)
 def osc_percent():
     """

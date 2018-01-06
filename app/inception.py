@@ -199,7 +199,6 @@ def execute_final(app, id):
              inception_magic_start;\
              %s\
              inception_magic_commit;" % (db_user, db_password, db_host, str(db_port), work.sql_content)
-        print(sql_split)
         spilt_result = fetch_all(sql_split, current_app.config['INCEPTION_HOST'], current_app.config['INCEPTION_PORT'],
                                  '', '', '')
         tmp_list = []

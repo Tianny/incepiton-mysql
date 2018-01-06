@@ -171,10 +171,10 @@
                                     </td>
                                     {% if work.status == 0 and work.backup == true %}
                                     <td>
-{#                                        <button type="button" class="btn btn-block btn-sm btn-success btn-flat"#}
-{#                                                onclick="location.href='{{ url_for('audit.audit_rollback', id=work.id) }}';">#}
-{#                                            RollBack SQL#}
-{#                                        </button>#}
+                                        <button type="button" class="btn btn-block btn-sm btn-success btn-flat"
+                                                onclick="location.href='{{ url_for('audit.audit_work_rollback', id=work.id) }}';">
+                                            RollBack SQL
+                                        </button>
                                     </td>
                                     {% endif %}
                                 </tr>

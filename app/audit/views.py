@@ -1,13 +1,14 @@
 from datetime import datetime
 import json
+import os
 
-from flask import render_template, url_for, redirect, request, jsonify, flash
+from flask import render_template, url_for, redirect, request, jsonify, flash, make_response, send_file
 from flask_login import login_required, current_user
 
 from .. import db, celery
 from .. import audit_permission
 from ..models import Dbapply, User, Dbconfig, Work
-from ..inception import sql_auto_review, get_osc, stop_osc
+from ..inception import sql_auto_review, get_osc, stop_osc, get_sql_roll
 from ..tasks import execute_task
 from . import audit
 
@@ -356,3 +357,24 @@ def work_flow_status():
     result = {'status': work_flow_status, 'msg': '', 'data': ''}
 
     return jsonify(result)
+
+
+@audit.route('/audit/work/rollback/<int:id>')
+@audit_permission.require(http_exception=403)
+def audit_work_rollback(id):
+    sql_roll = get_sql_roll(id)
+    base_dir = os.path.dirname(__file__)
+    roll_back_dir = base_dir + '/tmp'
+
+    if not os.path.exists(roll_back_dir):
+        os.makedirs(roll_back_dir)
+    fp = open(roll_back_dir + '/backup.sql', 'w')
+
+    for i in range(len(sql_roll)):
+        fp.write(sql_roll[i] + '\n')
+    fp.close()
+
+    response = make_response(send_file(roll_back_dir + '/backup.sql'))
+    response.headers['Content-Disposition'] = "attachment; filename=ex.sql"
+
+    return response

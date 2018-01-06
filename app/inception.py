@@ -266,3 +266,45 @@ def stop_osc(sql_sha1):
         opt_result = {'status': 1, 'msg': 'ERROR 2624 (HY000):未找到OSC执行进程，可能已经执行完成', 'data': ""}
 
     return opt_result
+
+
+def get_sql_roll(work_id):
+    work = Work.query.get(work_id)
+    execute_result = json.loads(work.execute_result)
+    sql_roll = []
+    for row in execute_result:
+        if row[8] == 'None':
+            continue
+        backup_db_name = row[8]
+        sequence = row[7]
+        opid_time = sequence.replace("'", "")
+        sql_table = "select tablename from %s.$_$Inception_backup_information$_$ where opid_time='%s';" % (
+            backup_db_name, opid_time)
+        tables = fetch_all(
+            sql_table,
+            current_app.config['INCEPTION_REMOTE_BACKUP_HOST'],
+            current_app.config['INCEPTION_REMOTE_BACKUP_PORT'],
+            current_app.config['INCEPTION_REMOTE_BACKUP_USER'],
+            current_app.config['INCEPTION_REMOTE_BACKUP_PASSWORD'],
+            ''
+        )
+        if tables is None or len(tables) != 1:
+            print('Error: return list_tables more than 1')
+
+        table_name = tables[0][0]
+        sql_back = "select rollback_statement from %s.%s where opid_time='%s'" % (backup_db_name, table_name, opid_time)
+
+        backups = fetch_all(
+            sql_back,
+            current_app.config['INCEPTION_REMOTE_BACKUP_HOST'],
+            current_app.config['INCEPTION_REMOTE_BACKUP_PORT'],
+            current_app.config['INCEPTION_REMOTE_BACKUP_USER'],
+            current_app.config['INCEPTION_REMOTE_BACKUP_PASSWORD'],
+            ''
+        )
+
+        if backups is not None and len(backups) != 0:
+            for row_num in range(len(backups)):
+                sql_roll.append(backups[row_num][0])
+
+    return sql_roll

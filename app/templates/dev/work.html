@@ -83,10 +83,10 @@
                                         {% endif %}
                                     </td>
                                     <td>
-{#                                        <button type="button" class="btn btn-block btn-sm bg-navy btn-flat"#}
-{#                                                onclick="location.href='{{ url_for('dev.dev_work_detail', id=work.id) }}'">#}
-{#                                            View#}
-{#                                        </button>#}
+                                        <button type="button" class="btn btn-block btn-sm bg-navy btn-flat"
+                                                onclick="location.href='{{ url_for('dev.dev_work_detail', id=work.id) }}'">
+                                            View
+                                        </button>
                                         {% if work.status == 2 or work.status == 7 %}
                                         <button type="button" class="btn btn-block btn-warning btn-sm"
                                                 onclick="location.href='{{ url_for('dev.dev_work_modify', id=work.id) }}'">

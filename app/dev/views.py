@@ -320,7 +320,7 @@ def dev_work_cancel(id):
 def dev_work_detail(id):
     work = Work.query.get(id)
 
-    if work.stats == 0 or work.status == 4:
+    if work.status == 0 or work.status == 4:
         list_content = json.loads(work.execute_result)
     else:
         list_content = json.loads(work.auto_review)

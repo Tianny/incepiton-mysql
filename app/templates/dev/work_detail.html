@@ -56,27 +56,7 @@
                                     {% else %}
                                         <span style="color: red; ">
                                     {% endif %}
-                                        <B id="workflowDetail_status">
-                                            {% if work.status == 0 %}
-                                                Success
-                                            {% eilf work.status == 1 %}
-                                                Pending
-                                            {% elif work.status == 2 %}
-                                                Check Failed
-                                            {% elif work.status == 3 %}
-                                                Executing
-                                            {% elif work.status == 4 %}
-                                                Error
-                                            {% elif work.status == 5 %}
-                                                Dev Cancelled
-                                            {% elif work.status == 6 %}
-                                                Audit Cancelled
-                                            {% elif work.status == 7 %}
-                                                Audit Rejected
-                                            {% elif work.status == 8 %}
-                                                Timing
-                                            {% endif %}
-                                        </B>
+                                        <B id="workflowDetail_status">{% if work.status == 0 %}Success{% elif work.status == 1 %}Pending{% elif work.status == 2 %}Check Failed{% elif work.status == 3 %}Executing{% elif work.status == 4 %}Error{% elif work.status == 5 %}Dev Cancelled{% elif work.status == 6 %}Audit Cancelled{% elif work.status == 7 %}Audit Rejected{% elif work.status == 8 %}Timing{% endif %}</B>
                                     </span>
                                 </td>
                             </tr>
@@ -142,6 +122,7 @@
                                         {% endif %}
                                     </td>
                                 </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -186,20 +167,11 @@
 
     $(document).ready(function () {
         var status = $("#workflowDetail_status").text();
-        console.log('status: ' + status);
-        var idDetail = window.location.pathname.indexOf("detail");
-        if (idDetail !== -1 && status === 'Executing'){
+        console.log(status);
+        var isDetail = window.location.pathname.indexOf("detail");
+        if (isDetail !== -1 && status === 'Executing'){
             console.log('第一次执行get_pct');
             get_pct(workflowid, itemIndex);
-
-            $("button.stop_osc").click(function () {
-                var isContinue = confirm("请确认是否终止pt-OSC进程? ");
-                if (isContinue){
-                    var element = $(this);
-                    var sqlNum = element.val();
-                    stopOsc(workflowid, sqlNum);
-                }
-            });
         }
     });
 
@@ -235,7 +207,7 @@
             var pct;
             $.ajax({
                 type: "post",
-                url: "{{ url_for('main.getOscPercent') }}",
+                url: "{{ url_for('audit.osc_percent') }}",
                 dataType: "json",
                 data: {
                     workflowid: wid,
@@ -313,37 +285,13 @@
 
     }
 
-    function stopOsc(wid, sqlNum) {
-        if (wid > 0 && sqlNum >= 1 && sqlNum <= sqlMaxRowNumber) {
-            console.log('stopping osc...' + sqlNum);
-            $.ajax({
-                type: "post",
-                async: false,
-                url: "{{ url_for('audit.stopOscProgress') }}",
-                dataType: "json",
-                data: {
-                    workflowid: wid,
-                    sqlID: sqlNum
-                },
-                success: function () {
-                    if (data.status === 0) {
-                        // 改变全局变量isStopped的值，以停止进度条更新
-                        isStopped = 1;
-                    }
-                    swal('Oops...', data.msg, 'error');
-                }
-
-            });
-        }
-    }
-
     function getWorkflowStatus(wid) {
         if (wid > 0) {
             console.log('get workflow status');
             $.ajax({
                 type: "post",
                 async: false,
-                url: "{{ url_for('audit.getWorkflowStatus') }}",
+                url: "{{ url_for('audit.work_flow_status') }}",
                 dataType: "json",
                 data: {
                     workflowid: wid
@@ -364,6 +312,7 @@
         var $form = $button.parent();
         var workflowid = $button.prev().val();
         var url = $form.data('action');
+        console.log(url);
         $.post(url, {workflowid: workflowid}, function () {});
 
         // 点击执行后，刷新当前页面，以显示执行进度

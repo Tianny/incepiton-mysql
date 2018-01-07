@@ -312,7 +312,7 @@ def osc_percent():
 def stop_osc_progress():
     data = request.form
     work_flow_id = data['workflowid']
-    sql_id = data['sql_id']
+    sql_id = data['sqlID']
 
     if work_flow_id == '' or work_flow_id is None or sql_id == '' or sql_id is None:
         context = {"status": -1, 'msg': 'workflowId或sqlID参数为空.', "data": ""}

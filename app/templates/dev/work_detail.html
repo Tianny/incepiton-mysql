@@ -112,8 +112,8 @@
                                     <td>{{ row.9 }}</td>
                                     <td id="td_{{ loop.index }}">
                                         {% if work.status == 3 %}
-                                        <div class="progress progress-xs progress-striped active">
-                                            <div id="div_{{ loop.index }}" class="progress-bar progress-bar-success">
+                                        <div class="progress active">
+                                            <div id="div_{{ loop.index }}" class="progress-bar">
                                                 <span id="span_{{ loop.index }}"></span>
                                             </div>
                                         </div>
@@ -260,7 +260,7 @@
                             pct = data.data.percent;
                             console.log('per:' + pct);
                             document.getElementById("div_" + sqlNum).style.width = pct + "%";
-                            document.getElementById("div_" + sqlNum).className = "progress-bar";
+                            document.getElementById("div_" + sqlNum).className = "progress-bar progress-bar-success progress-bar-striped";
                             document.getElementById("span_" + sqlNum).innerHTML = pct + "%";
                             if (pct === 100) {
                                 document.getElementById("btnstop_" + sqlNum).style.display = "none";

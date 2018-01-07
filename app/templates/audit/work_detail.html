@@ -148,8 +148,8 @@
                                     <td id="td_{{ loop.index }}">
                                         {% if work.status == 3 %}
                                             <div>
-                                            <div class="progress progress-xs progress-striped active">
-                                                <div id="div_{{ loop.index }}" class="progress-bar progress-bar-success">
+                                            <div class="progress active">
+                                                <div id="div_{{ loop.index }}" class="progress-bar">
                                                     <span id="span_{{ loop.index }}"></span>
                                                 </div>
                                             </div>
@@ -197,6 +197,8 @@
     <!-- DataTables -->
     <script src="{{ url_for('static',filename='vendor/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ url_for('static',filename='vendor/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+    <!-- SweetAlert2 -->
+    <script src="{{ url_for('static',filename='vendor/sweetalert2/sweetalert2.min.js') }}"></script>
 {% endblock %}
 
 {% block custom %}
@@ -324,7 +326,7 @@
                             pct = data.data.percent;
                             console.log('per:' + pct);
                             document.getElementById("div_" + sqlNum).style.width = pct + "%";
-                            document.getElementById("div_" + sqlNum).className = "progress-bar";
+                            document.getElementById("div_" + sqlNum).className = "progress-bar progress-bar-success progress-bar-striped";
                             document.getElementById("span_" + sqlNum).innerHTML = pct + "%";
                             if (pct === 100) {
                                 document.getElementById("btnstop_" + sqlNum).style.display = "none";
@@ -361,12 +363,12 @@
                     workflowid: wid,
                     sqlID: sqlNum
                 },
-                success: function () {
+                success: function (data) {
                     if (data.status === 0) {
                         // 改变全局变量isStopped的值，以停止进度条更新
                         isStopped = 1;
                     }
-                    swal('Oops...', data.msg, 'error');
+                    swal('Oops...', data.msg, 'warning');
                 }
 
             });

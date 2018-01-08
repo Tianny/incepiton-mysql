@@ -17,6 +17,7 @@ from . import admin
 @admin_permission.require(http_exception=403)
 def dbs():
     dbconfigs = Dbconfig.query.all()
+
     return render_template('admin/db.html', dbconfigs=dbconfigs)
 
 
@@ -25,6 +26,7 @@ def dbs():
 @admin_permission.require(http_exception=403)
 def db_create():
     form = DbForm()
+
     if form.validate_on_submit():
         dbconfig = Dbconfig()
         dbconfig.name = form.name.data
@@ -33,9 +35,8 @@ def db_create():
         dbconfig.slave_host = form.slave_host.data
         dbconfig.slave_port = form.slave_port.data
         dbconfig.username = form.username.data
-        print(type(form.password.data))
         dbconfig.password = base64.b64encode(form.password.data.encode('utf-8'))
-        print(type(dbconfig.password))
+
         db.session.add(dbconfig)
         db.session.commit()
 
@@ -50,6 +51,7 @@ def db_create():
 def db_update(id):
     dbconfig = Dbconfig.query.get(id)
     form = DbForm()
+
     if form.validate_on_submit():
         dbconfig.name = form.name.data
         dbconfig.master_host = form.master_host.data
@@ -59,6 +61,7 @@ def db_update(id):
         dbconfig.username = form.username.data
         dbconfig.password = base64.b64encode(form.password.data.encode())
         dbconfig.update_time = datetime.now()
+
         db.session.add(dbconfig)
         db.session.commit()
 
@@ -72,6 +75,7 @@ def db_update(id):
 @admin_permission.require(http_exception=403)
 def db_delete(id):
     dbconfig = Dbconfig.query.get(id)
+
     db.session.delete(dbconfig)
     db.session.commit()
 
@@ -83,6 +87,7 @@ def db_delete(id):
 @admin_permission.require(http_exception=403)
 def user():
     users = User.query.filter(User.role != 'admin')
+
     return render_template('admin/user.html', users=users)
 
 
@@ -91,6 +96,7 @@ def user():
 @admin_permission.require(http_exception=403)
 def user_create():
     form = UserForm()
+
     if form.validate_on_submit():
         user = User()
         user.name = form.name.data
@@ -111,8 +117,10 @@ def user_create():
 def user_update(id):
     user = User.query.get(id)
     form = ModifyRoleForm()
+
     if form.validate_on_submit():
         user.role = form.role.data
+
         db.session.add(user)
         db.session.commit()
 
@@ -126,6 +134,7 @@ def user_update(id):
 @admin_permission.require(http_exception=403)
 def user_delete(id):
     user = User.query.get(id)
+
     db.session.delete(user)
     db.session.commit()
 
@@ -148,6 +157,7 @@ def user_alloc(id):
     if form.validate_on_submit():
         dbconfig = Dbconfig.query.get(form.db.data)
         user.dbs.append(dbconfig)
+
         db.session.add(user)
         db.session.commit()
 
@@ -169,6 +179,7 @@ def user_unbind(user_id, db_id):
     user = User.query.get(user_id)
     dbconfig = Dbconfig.query.get(db_id)
     user.dbs.remove(dbconfig)
+
     db.session.add(user)
     db.session.commit()
 

@@ -2,10 +2,14 @@ import os
 
 
 class Config:
-    # Flask Setting
+    """
+    Configurations shared by all env.
+    """
+
     SECRET_KEY = os.getenv('SECRET_KEY', 'THIS IS AN INSECURE SECRET')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
     CSRF_ENABLED = True
+
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Flask-Mail settings
     MAIL_ON_OFF = 'OFF'
@@ -22,12 +26,12 @@ class Config:
     # LDAP switch option
     LDAP_ON_OFF = 'ON'
 
-    @staticmethod
-    def init_app(app):
-        pass
-
 
 class DevelopmentConfig(Config):
+    """
+    Configurations used for development env.
+    """
+
     DEBUG = True
 
     SQLALCHEMY_DATABASE_URI = os.getenv(
@@ -44,12 +48,6 @@ class DevelopmentConfig(Config):
     INCEPTION_REMOTE_BACKUP_PORT = 3306
     INCEPTION_REMOTE_BACKUP_USER = 'inception_web'
     INCEPTION_REMOTE_BACKUP_PASSWORD = 'inception_web'
-
-    # slow log option
-    # SLOW_LOG_HOST = '10.10.106.68'
-    # SLOW_LOG_PORT = 3306
-    # SLOW_LOG_USER = 'inception'
-    # SLOW_LOG_PASSWORD = 'inception'
 
     # Flask LDAP settings
     LDAP_OPENLDAP = True
@@ -94,5 +92,6 @@ config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
     'production': ProductionConfig,
+
     'default': DevelopmentConfig
 }

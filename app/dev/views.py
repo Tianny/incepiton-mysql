@@ -13,10 +13,6 @@ from .form import DbApplyForm, WorkForm, UpdateWorkForm
 from ..inception import sql_auto_review
 from . import dev
 
-"""
-DB Instances Apply
-"""
-
 
 @dev.route('/dev/resource')
 @login_required

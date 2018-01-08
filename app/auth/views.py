@@ -17,23 +17,29 @@ def before_request():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+
     if form.validate_on_submit():
         user = User.query.filter(User.name == form.username.data).first()
+
         if user is not None and user.name == 'admin':
             if user.check_password(form.password.data):
                 login_user(user, form.remember_me.data)
                 identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
+
                 return redirect(url_for('main.dashboard'))
             else:
-                flash(u'Invalid password')
+                flash('Invalid password')
+
                 return redirect(url_for('.login'))
 
         if user is not None:
             validator = ldap.bind_user(form.username.data, form.password.data)
+
             if validator is not None:
                 if user.check_password(form.password.data):
                     login_user(user, form.remember_me.data)
                     identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
+
                     return redirect(url_for('main.dashboard'))
                 else:
                     user.hash_pass = user.set_password(form.password.data)
@@ -41,11 +47,13 @@ def login():
                     db.session.commit()
                     login_user(user, form.remember_me.data)
                     identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
+
                     return redirect(url_for('main.dashboard'))
             else:
-                flash(u'Ldap Authentication Fail')
+                flash('Ldap Authentication Fail')
         else:
             validator = ldap.bind_user(form.username.data, form.password.data)
+
             if validator is not None:
                 user = User()
                 user.name = form.username.data
@@ -56,9 +64,10 @@ def login():
                 db.session.commit()
                 login_user(user, form.remember_me.data)
                 identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
+
                 return redirect(url_for('main.dashboard'))
             else:
-                flash(u'Ldap Authentication Fail')
+                flash('Ldap Authentication Fail')
 
     return render_template("auth/login.html", form=form)
 

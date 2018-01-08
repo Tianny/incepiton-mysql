@@ -50,19 +50,31 @@ def load_user(user_id):
 
 
 class Dbconfig(db.Model):
+    """
+    Definition for db instance.
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
     master_host = db.Column(db.String(200), )
     master_port = db.Column(db.Integer, default=3306)
     slave_host = db.Column(db.String(200), )
     slave_port = db.Column(db.Integer, default=3306)
+
+    # username used by Inception
     username = db.Column(db.String(64))
+
+    # password used by Inception
     password = db.Column(db.String(100))
     create_time = db.Column(db.DateTime, default=datetime.now())
     update_time = db.Column(db.DateTime, default=datetime.now())
 
 
 class Dbapply(db.Model):
+    """
+    Definition for applying for db instance.
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     dev_name = db.Column(db.String(64))
     db_name = db.Column(db.String(64))
@@ -73,6 +85,10 @@ class Dbapply(db.Model):
 
 
 class Work(db.Model):
+    """
+    Definition for work sheet
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     task_id = db.Column(db.String(64))
     name = db.Column(db.String(64))

@@ -263,7 +263,6 @@ def get_sql_sha1(work_flow_id):
 
 
 @audit.route('/osc_percent', methods=['POST'])
-@audit_permission.require(http_exception=403)
 def osc_percent():
     """
     获取该SQL的pt-OSC执行进度和剩余事件
@@ -342,7 +341,6 @@ def stop_osc_progress():
 
 
 @audit.route('/work_flow_status', methods=['POST'])
-@audit_permission.require(http_exception=403)
 def work_flow_status():
     work_flow_id = request.form['workflowid']
 

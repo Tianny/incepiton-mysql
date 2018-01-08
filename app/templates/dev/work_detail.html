@@ -141,6 +141,7 @@
     <!-- DataTables -->
     <script src="{{ url_for('static',filename='vendor/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ url_for('static',filename='vendor/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+    <!-- SweetAlert2 -->
     <script src="{{ url_for('static',filename='vendor/sweetalert2/sweetalert2.min.js') }}"></script>
 {% endblock %}
 
@@ -162,7 +163,6 @@
     var wfStatus = -1;
     var itemIndex = 1;
     var key;
-    var isStopped = 0;
     var retryCnt = 1;
 
     $(document).ready(function () {
@@ -200,10 +200,7 @@
         }
         else{
             console.log('开始执行getOscPercent');
-            if (isStopped === 1) {
-                document.getElementById("btnstop_" + sqlNum).style.display = "none";
-                return false;
-            }
+
             var pct;
             $.ajax({
                 type: "post",
@@ -263,11 +260,9 @@
                             document.getElementById("div_" + sqlNum).className = "progress-bar progress-bar-success progress-bar-striped";
                             document.getElementById("span_" + sqlNum).innerHTML = pct + "%";
                             if (pct === 100) {
-                                document.getElementById("btnstop_" + sqlNum).style.display = "none";
                                 itemIndex++;
                                 get_pct(wid, itemIndex);
                             } else {
-                                document.getElementById("btnstop_" + sqlNum).style.display = "";
                                 clearTimeout(key);
                                 key = setTimeout(function () {
                                     get_pct(wid, itemIndex);
@@ -307,27 +302,8 @@
         }
     }
 
-    function execute() {
-        var $button = $(window.event.target);
-        var $form = $button.parent();
-        var workflowid = $button.prev().val();
-        var url = $form.data('action');
-        console.log(url);
-        $.post(url, {workflowid: workflowid}, function () {});
 
-        // 点击执行后，刷新当前页面，以显示执行进度
-        setTimeout(function () {
-            window.location.reload(true);
-        }, 2500)
-    }
 
-    $(document).ready(function () {
-        $("#btnExecute").click(function () {
-            $(this).button('loading').delay(2500).queue(function () {
-                $(this).button('reset');
-                $(this).dequeue();
-            })
-        })
-    })
+
 </script>
 {% endblock %}

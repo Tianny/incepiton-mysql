@@ -27,7 +27,7 @@
                             <thead>
                             <tr>
                                 <th>DB</th>
-                                <th>Auditor</th>
+                                <th>Dev</th>
                                 <th>CreateTime</th>
                                 <th>FinishTime</th>
                                 <th>Status</th>
@@ -37,7 +37,7 @@
                             {% for resource in resources %}
                                 <tr>
                                     <td>{{ resource.db_name }}</td>
-                                    <td>{{ resource.audit_name }}</td>
+                                    <td>{{ resource.dev_name }}</td>
                                     <td>{{ resource.create_time }}</td>
                                     <td>
                                         {% if resource.finish_time %}

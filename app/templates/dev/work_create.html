@@ -24,6 +24,12 @@
                     </div>
                     <!-- /.box-header -->
                     <!-- form start -->
+                    {% for message in get_flashed_messages() %}
+                    <div class="alert alert-warning">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
                     <form role="form" method="post" action="{{ url_for('dev.dev_work_create') }}">
                         {{ form.hidden_tag() }}
                         <div class="box-body">
@@ -184,7 +190,7 @@
                             $('#result').remove();
                             $('#sql_check_result').append(finalHtml);
                         } else {
-                            swal(data.msg, 'error');
+                            swal('oops...', data.msg, 'error');
                         }
                     }
                 })

@@ -19,6 +19,10 @@ sql_sha1_cache = {}  # 存储SQL文本与SHA1值的对应关系，尽量减少�
 @login_required
 @audit_permission.require(http_exception=403)
 def audit_resource_dealt():
+    """
+    Application from dev for db instances have been dealt.
+    :return:
+    """
     resources = Dbapply.query.filter(Dbapply.audit_name == current_user.name, Dbapply.status != 1)
 
     return render_template('audit/resource_dealt.html', resources=resources)
@@ -28,15 +32,24 @@ def audit_resource_dealt():
 @login_required
 @audit_permission.require(http_exception=403)
 def audit_resource_pending():
+    """
+    Application from dev for db instances will to be handled.
+    :return:
+    """
     resources = Dbapply.query.filter(Dbapply.audit_name == current_user.name, Dbapply.status == 1)
 
     return render_template('audit/resource_pending.html', resources=resources)
 
 
-@audit.route('/audit/resource/alloc/<int:id>')
+@audit.route('/audit/resource/alloc/<int:id>', methods=['POST', 'GET'])
 @login_required
 @audit_permission.require(http_exception=403)
 def audit_resource_alloc(id):
+    """
+    Alloc db instances to dev.
+    :param id:
+    :return:
+    """
     resource = Dbapply.query.get(id)
     user = User.query.filter(User.name == resource.dev_name).first()
     db_config = Dbconfig.query.filter(Dbconfig.name == resource.db_name).first()
@@ -47,18 +60,22 @@ def audit_resource_alloc(id):
     db.session.add(resource)
     db.session.commit()
 
-    resources = Dbapply.query.filter(Dbapply.audit_name == current_user.name, Dbapply.status == 1)
-
-    return redirect(url_for('.audit_resource_pending', resources=resources))
+    return redirect(url_for('.audit_resource_pending'))
 
 
 @audit.route('/audit/resource/cancel/<int:id>')
 @login_required
 @audit_permission.require(http_exception=403)
 def audit_resource_cancel(id):
+    """
+    Cancelled the application from dev.
+    :param id:
+    :return:
+    """
     resource = Dbapply.query.get(id)
     resource.status = 3
     resource.finish_time = datetime.now()
+
     db.session.add(resource)
     db.session.commit()
 
@@ -69,6 +86,10 @@ def audit_resource_cancel(id):
 @login_required
 @audit_permission.require(http_exception=403)
 def audit_work_pending():
+    """
+    Work orders to be handled, exclude timer.
+    :return:
+    """
     works = Work.query.filter(Work.audit_name == current_user.name, Work.status == 1, Work.timer == None)
 
     return render_template('audit/work_pending.html', works=works)
@@ -78,6 +99,10 @@ def audit_work_pending():
 @login_required
 @audit_permission.require(http_exception=403)
 def audit_work_dealt():
+    """
+    Work orders has been handled.
+    :return:
+    """
     works = Work.query.filter(Work.audit_name == current_user.name, Work.status != 1)
 
     return render_template('audit/work_dealt.html', works=works)

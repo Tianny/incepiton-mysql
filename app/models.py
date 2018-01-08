@@ -90,6 +90,8 @@ class Work(db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True)
+
+    # celery task id
     task_id = db.Column(db.String(64))
     name = db.Column(db.String(64))
     dev_name = db.Column(db.String(64))
@@ -97,8 +99,12 @@ class Work(db.Model):
     db_name = db.Column(db.String(64))
     backup = db.Column(db.Boolean, default=True)
     status = db.Column(db.Integer, nullable=False)
+
+    # table shard
     shard = db.Column(db.String(64), default='0')
     sql_content = db.Column(db.TEXT(16777215))
+
+    # worker order with timer
     timer = db.Column(db.DateTime)
     create_time = db.Column(db.DateTime, default=datetime.now())
     finish_time = db.Column(db.DateTime)

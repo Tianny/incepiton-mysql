@@ -16,6 +16,10 @@ from . import admin
 @login_required
 @admin_permission.require(http_exception=403)
 def dbs():
+    """
+    Show db instances.
+    :return:
+    """
     dbconfigs = Dbconfig.query.all()
 
     return render_template('admin/db.html', dbconfigs=dbconfigs)
@@ -25,6 +29,10 @@ def dbs():
 @login_required
 @admin_permission.require(http_exception=403)
 def db_create():
+    """
+    Add db instances.
+    :return:
+    """
     form = DbForm()
 
     if form.validate_on_submit():
@@ -49,6 +57,11 @@ def db_create():
 @login_required
 @admin_permission.require(http_exception=403)
 def db_update(id):
+    """
+    Modify db instances.
+    :param id:
+    :return:
+    """
     dbconfig = Dbconfig.query.get(id)
     form = DbForm()
 
@@ -74,6 +87,11 @@ def db_update(id):
 @login_required
 @admin_permission.require(http_exception=403)
 def db_delete(id):
+    """
+    Delete db instances.
+    :param id:
+    :return:
+    """
     dbconfig = Dbconfig.query.get(id)
 
     db.session.delete(dbconfig)
@@ -86,6 +104,10 @@ def db_delete(id):
 @login_required
 @admin_permission.require(http_exception=403)
 def user():
+    """
+    Show users.
+    :return:
+    """
     users = User.query.filter(User.role != 'admin')
 
     return render_template('admin/user.html', users=users)
@@ -95,6 +117,10 @@ def user():
 @login_required
 @admin_permission.require(http_exception=403)
 def user_create():
+    """
+    Create users.
+    :return:
+    """
     form = UserForm()
 
     if form.validate_on_submit():
@@ -115,6 +141,11 @@ def user_create():
 @login_required
 @admin_permission.require(http_exception=403)
 def user_update(id):
+    """
+    Modify users.
+    :param id:
+    :return:
+    """
     user = User.query.get(id)
     form = ModifyRoleForm()
 
@@ -133,6 +164,11 @@ def user_update(id):
 @login_required
 @admin_permission.require(http_exception=403)
 def user_delete(id):
+    """
+    Delete users.
+    :param id:
+    :return:
+    """
     user = User.query.get(id)
 
     db.session.delete(user)
@@ -145,6 +181,11 @@ def user_delete(id):
 @login_required
 @admin_permission.require(http_exception=403)
 def user_alloc(id):
+    """
+    Alloc db instances to users.
+    :param id:
+    :return:
+    """
     user = User.query.get(id)
     user_dbconfigs = user.dbs
     all_dbconfigs = Dbconfig.query.all()
@@ -176,6 +217,12 @@ def user_alloc(id):
 @login_required
 @admin_permission.require(http_exception=403)
 def user_unbind(user_id, db_id):
+    """
+    Unbind db instances with users.
+    :param user_id:
+    :param db_id:
+    :return:
+    """
     user = User.query.get(user_id)
     dbconfig = Dbconfig.query.get(db_id)
     user.dbs.remove(dbconfig)

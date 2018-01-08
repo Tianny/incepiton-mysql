@@ -3,7 +3,7 @@ import re
 import json
 
 import sqlparse
-from flask import render_template, redirect, url_for, current_app, flash, request
+from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 
 from .. import db
@@ -18,6 +18,10 @@ from . import dev
 @login_required
 @dev_permission.require(http_exception=403)
 def dev_resource():
+    """
+    Show user's db instances.
+    :return:
+    """
     user = User.query.filter(User.name == current_user.name).first()
     resources = user.dbs
 
@@ -28,6 +32,10 @@ def dev_resource():
 @login_required
 @dev_permission.require(http_exception=403)
 def dev_resource_status():
+    """
+    Show user's application status
+    :return:
+    """
     resources = Dbapply.query.filter(Dbapply.dev_name == current_user.name)
 
     return render_template('dev/resource_status.html', resources=resources)
@@ -37,9 +45,15 @@ def dev_resource_status():
 @login_required
 @dev_permission.require(http_exception=403)
 def dev_resource_cancel(id):
+    """
+    Dev users cancelled the application
+    :param id:
+    :return:
+    """
     resource = Dbapply.query.get(id)
     resource.status = 2
     resource.finish_time = datetime.now()
+
     db.session.add(resource)
     db.session.commit()
 
@@ -50,6 +64,10 @@ def dev_resource_cancel(id):
 @login_required
 @dev_permission.require(http_exception=403)
 def dev_resource_request():
+    """
+    Apply for db instances.
+    :return:
+    """
     audits = User.query.filter(User.role == 'audit')
     user = User.query.filter(User.name == current_user.name).first()
     user_dbs = current_user.dbs
@@ -83,11 +101,6 @@ def dev_resource_request():
     )
 
 
-"""
-Dev Work Sheets
-"""
-
-
 @dev.route('/dev/work')
 @login_required
 @dev_permission.require(http_exception=403)
@@ -101,31 +114,42 @@ def dev_work():
 @login_required
 @dev_permission.require(http_exception=403)
 def dev_work_create():
+    """
+    Create work order.
+    :return:
+    """
     db_ins = current_user.dbs
     audits = User.query.filter(User.role == 'audit')
     form = WorkForm()
+
     if form.validate_on_submit():
         sql_content = form.sql_content.data
         db_ins = form.db_ins.data
         shard = form.shard.data
+
         if form.backup.data:
             is_backup = True
         else:
             is_backup = False
 
-        # sql_content = sql_content.rstrip().decode('utf-8').replace("\n", " ")
         sql_content = sql_content.rstrip().replace("\n", " ")
 
+        # Only Create and Alter can be used with table shard
         shard_create = re.search('\s*create\s+', sql_content, flags=re.IGNORECASE)
         shard_alter = re.search('\s*alter\s+', sql_content, flags=re.IGNORECASE)
         shard_judge = shard_create or shard_alter
 
         if shard != '0' and not shard_judge:
-            flash(u'Only Create and Alter sql can be used when using table shard!')
+            flash('Only Create and Alter sql can be used when using table shard!')
+
+            return redirect(url_for('.dev_work_create'))
+
+        # split joint sql with shard numbers
         if shard != '0' and shard_judge:
             split_sql = sqlparse.split(sql_content)
             format_table = re.sub(" +", " ", split_sql[1])
             sql_content = ''
+
             for count in range(int(shard)):
                 format_table_list = format_table.split(' ')
                 shard_name = '`' + str(format_table_list[2].strip('`')) + '_' + str(count) + '`'
@@ -144,9 +168,11 @@ def dev_work_create():
             work.sql_content = sql_content
 
             result = sql_auto_review(sql_content, db_ins)
+
             if result or len(result) != 0:
                 json_result = json.dumps(result)
                 work.status = 1
+
                 for row in result:
                     if row[2] == 2:
                         work.status = 2
@@ -154,6 +180,7 @@ def dev_work_create():
                     elif re.match(r"\w*comments\w*", row[4]):
                         work.status = 2
                         break
+
                 work.auto_review = json_result
                 work.create_time = datetime.now()
 
@@ -162,9 +189,13 @@ def dev_work_create():
 
                 return redirect(url_for('.dev_work'))
             else:
-                flash(u'The return of Inception is null. May be something wrong with the SQL sentence ')
+                flash('The return of Inception is null. May be something wrong with the SQL sentence ')
+
+                return redirect(url_for('.dev_work_create'))
         else:
-            flash(u'SQL sentences does not ends with ; Please Check!')
+            flash('SQL sentences does not ends with ; Please Check!')
+
+            return redirect(url_for('.dev_work_create'))
 
     return render_template('dev/work_create.html', form=form, db_ins=db_ins, audits=audits)
 
@@ -172,6 +203,10 @@ def dev_work_create():
 @dev.route('/dev/work/check', methods=['POST'])
 @dev_permission.require(http_exception=403)
 def dev_work_check():
+    """
+    SQL check button triggers this func.
+    :return:
+    """
     data = request.form
     sql_content = data['sql_content']
     db_in_name = data['db_in']
@@ -180,7 +215,7 @@ def dev_work_check():
 
     if not sql_content or not db_in_name:
         final_result['status'] = 1
-        final_result['msg'] = 'DB or SQL is null'
+        final_result['msg'] = 'DB or SQL is null !'
 
         return json.dumps(final_result)
 
@@ -188,20 +223,22 @@ def dev_work_check():
 
     if sql_content[-1] != ';':
         final_result['status'] = 2
-        final_result['msg'] = 'SQL not end with ;'
+        final_result['msg'] = 'SQL not end with ; Please check !'
 
         return json.dumps(final_result)
 
+    # Only Create and Alter can be used with table shard
     shard_create = re.search('\s*create\s+', sql_content, flags=re.IGNORECASE)
     shard_alter = re.search('\s*alter\s+', sql_content, flags=re.IGNORECASE)
     shard_judge = shard_create or shard_alter
 
     if shard != '0' and not shard_judge:
         final_result['status'] = 4
-        final_result['msg'] = 'Only Create and Alter sql can be used when using table shard!'
+        final_result['msg'] = 'Only Create and Alter sql can be used when using table shard !'
 
         return json.dumps(final_result)
 
+    # split joint sql with shard numbers
     if shard != '0' and shard_judge:
         split_sql = sqlparse.split(sql_content)
         format_table = re.sub(" +", " ", split_sql[1])
@@ -212,9 +249,12 @@ def dev_work_check():
             shard_name = '`' + str(format_table_list[2].strip('`')) + '_' + str(count) + '`'
             format_table_list[2] = shard_name
             sql_content += ' '.join(format_table_list)
+
         sql_content = split_sql[0] + sql_content
 
+    # Submit the final SQL to Inception
     result = sql_auto_review(sql_content, db_in_name)
+
     if result is None or len(result) == 0:
         final_result['status'] = 3
         final_result['msg'] = 'The return of Inception is null. May be something wrong with the SQL'
@@ -230,13 +270,20 @@ def dev_work_check():
 @login_required
 @dev_permission.require(http_exception=403)
 def dev_work_modify(id):
+    """
+    Modify dev's work order.
+    :param id:
+    :return:
+    """
     work = Work.query.get(id)
     db_ins = current_user.dbs
     audits = User.query.filter(User.role == 'audit')
     form = UpdateWorkForm()
+
     if form.validate_on_submit():
         shard = form.shard.data
         db_name = form.db_ins.data
+
         if form.backup.data:
             is_backup = True
         else:
@@ -244,13 +291,17 @@ def dev_work_modify(id):
 
         sql_content = form.sql_content.data.rstrip().replace("\n", " ")
 
+        # Only Create and Alter can be used with table shard
         shard_create = re.search('\s*create\s+', sql_content, flags=re.IGNORECASE)
         shard_alter = re.search('\s*alter\s+', sql_content, flags=re.IGNORECASE)
         shard_judge = shard_create or shard_alter
 
         if shard != '0' and not shard_judge:
-            flash(u'Only Create and Alter sql can be used when using table shard!')
+            flash('Only Create and Alter sql can be used when using table shard !')
 
+            return redirect(url_for('.dev_work_modify', id=id))
+
+        # split joint sql with shard numbers
         if shard != '0' and shard_judge:
             split_sql = sqlparse.split(sql_content)
             format_table = re.sub(" +", " ", split_sql[1])
@@ -268,9 +319,9 @@ def dev_work_modify(id):
             work.shard = shard
             work.backup = is_backup
             work.db_name = db_name
-            work.audit_name = form.audit.name
+            work.audit_name = form.audit.data
 
-            result = sql_auto_review(sql_content, work.db_name, work.backup)
+            result = sql_auto_review(sql_content, db_name)
             if result or len(result) != 0:
                 json_result = json.dumps(result)
                 work.status = 1
@@ -281,6 +332,7 @@ def dev_work_modify(id):
                     elif re.match(r"\w*comments\w*", row[4]):
                         work.status = 2
                         break
+
                 work.auto_review = json_result
                 work.sql_content = sql_content
 
@@ -289,9 +341,13 @@ def dev_work_modify(id):
 
                 return redirect(url_for('.dev_work'))
             else:
-                flash(u'The return of Inception is null. May be something wrong with the SQL')
+                flash('The return of Inception is null. May be something wrong with the SQL')
+
+                return redirect(url_for('.dev_work_modify', id=id))
         else:
-            flash(u'SQL sentences does not ends with ; Please Check!')
+            flash('SQL sentences does not ends with ; Please Check!')
+
+            return redirect(url_for('.dev_work_modify', id=id))
 
     return render_template('dev/work_modify.html', form=form, work=work, db_ins=db_ins, audits=audits)
 

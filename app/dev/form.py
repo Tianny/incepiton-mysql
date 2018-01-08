@@ -4,6 +4,10 @@ from wtforms.validators import DataRequired
 
 
 class DbApplyForm(FlaskForm):
+    """
+    Definition for applying for db instance.
+    """
+
     db = StringField(u'DBName', validators=[DataRequired()])
     audit = StringField(u'Audit', validators=[DataRequired()])
 

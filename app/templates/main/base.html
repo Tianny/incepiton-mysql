@@ -18,13 +18,15 @@
     <!-- Select2 -->
     <link rel="stylesheet" href="{{ url_for('static',filename='vendor/select2/css/select2.min.css') }}">
     <!-- iCheck for checkboxes and radio inputs -->
-    <link rel="stylesheet" href="{{ url_for('static',filename='plugins/iCheck/all.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='vendor/iCheck/all.css') }}">
     <!-- SweetAlert2-->
     <link rel="stylesheet" href="{{ url_for('static',filename='vendor/sweetalert2/sweetalert2.min.css') }}">
     <!-- bootstrap datetimepicker -->
     <link rel="stylesheet" href="{{ url_for('static',filename='vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css') }}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ url_for('static',filename='dist/css/AdminLTE.min.css') }}">
+    <!-- Pace style -->
+    <link rel="stylesheet" href="{{ url_for('static',filename='vendor/pace/pace.min.css') }}">
     <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
     <link rel="stylesheet" href="{{ url_for('static',filename='dist/css/skins/skin-blue.min.css') }}">
@@ -338,6 +340,8 @@
 <script src="{{ url_for('static',filename='vendor/jquery-slimscroll/jquery.slimscroll.min.js') }}"></script>
 <!-- ChartJS -->
 <script src="{{ url_for('static',filename='vendor/chart.js/Chart.js') }}"></script>
+<!-- Pace style -->
+<script src="{{ url_for('static',filename='vendor/pace/pace.min.js') }}"></script>
 
 {% block js %}
 {% endblock %}

@@ -80,14 +80,11 @@
 <!-- /.login-box -->
 
 <!-- jQuery 3 -->
-{#<script src="../../bower_components/jquery/dist/jquery.min.js"></script>#}
 <script src="{{ url_for('static',filename='vendor/jquery/jquery.min.js') }}"></script>
 <!-- Bootstrap 3.3.7 -->
-{#<script src="../../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>#}
 <script src="{{ url_for('static',filename='vendor/bootstrap/js/bootstrap.min.js') }}"></script>
 <!-- iCheck -->
-{#<script src="../../plugins/iCheck/icheck.min.js"></script>#}
-<script src="{{ url_for('static',filename='plugins/iCheck/icheck.min.js') }}"></script>
+<script src="{{ url_for('static',filename='vendor/iCheck/icheck.min.js') }}"></script>
 <script>
     $(function () {
         $('input').iCheck({

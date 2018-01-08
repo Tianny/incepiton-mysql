@@ -24,6 +24,12 @@
                     </div>
                     <!-- /.box-header -->
                     <div class="box-body">
+                        {% for message in get_flashed_messages() %}
+                            <div class="alert alert-warning">
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            {{ message }}
+                             </div>
+                        {% endfor %}
                         <form method="post" action="{{ url_for('audit.audit_work_timer', id=work.id) }}">
                             <div class="form-group">
                                 <label>状态：</label>

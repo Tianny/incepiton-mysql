@@ -67,6 +67,7 @@ class DevelopmentConfig(Config):
     CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
 
     # Celery TimeZone
+    # CELERY_ENABLE_UTC = False
     CELERY_TIMEZONE = 'UTC'
 
     # Celery other settings

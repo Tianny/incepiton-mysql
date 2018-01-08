@@ -356,6 +356,11 @@ def dev_work_modify(id):
 @login_required
 @dev_permission.require(http_exception=403)
 def dev_work_cancel(id):
+    """
+    Cancel work order by dev self
+    :param id:
+    :return:
+    """
     work = Work.query.get(id)
     work.status = 5
     work.finish_time = datetime.now()

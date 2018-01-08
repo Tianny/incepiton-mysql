@@ -118,7 +118,7 @@ function getWorkCeleryStatus(wtid){
             console.log('wftStatus ' + wftStatus);
             console.log(content);
             document.getElementById("workflowCelery_status").innerHTML = content;
-            if (content !== '' && content !== 'Wait or Unknown task') {
+            if (content !== '' && content !== 'Wait') {
                 $("button.timer_set").attr('disabled', 'True');
             }
             if (wftStatus === 4 || wftStatus === 0 || wftStatus === -1) {

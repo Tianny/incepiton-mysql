@@ -112,6 +112,11 @@ def audit_work_dealt():
 @login_required
 @audit_permission.require(http_exception=403)
 def audit_work_detail(id):
+    """
+    Show more information about the work order and operations
+    :param id:
+    :return:
+    """
     work = Work.query.get(id)
     backtimer = 0
 
@@ -134,6 +139,11 @@ def audit_work_detail(id):
 @login_required
 @audit_permission.require(http_exception=403)
 def audit_work_cancel(id):
+    """
+    Cancel the work order by auditor.
+    :param id:
+    :return:
+    """
     work = Work.query.get(id)
     work.status = 6
     work.finish_time = datetime.now()
@@ -147,6 +157,11 @@ def audit_work_cancel(id):
 @login_required
 @audit_permission.require(http_exception=403)
 def audit_work_reject(id):
+    """
+    Reject the work order by auditor.
+    :param id:
+    :return:
+    """
     work = Work.query.get(id)
     work.status = 7
     work.finish_time = datetime.now()
@@ -183,17 +198,24 @@ def audit_work_execute():
 @audit.route('/audit/timer/work/<int:id>', methods=['GET', 'POST'])
 @audit_permission.require(http_exception=403)
 def audit_work_timer(id):
+    """
+    Set timer for work order.
+    :param id:
+    :return:
+    """
     work = Work.query.get(id)
     if request.method == "POST":
         data = request.form
         timer = datetime.strptime(data["dt"], "%Y-%m-%d %H:%M")
-        execute_time = (timer - datetime.now()).seconds
-        if execute_time > 0:
-            sig = execute_task.signature((id,), countdown=execute_time)
+        now = datetime.now()
+
+        if timer > now:
+            sig = execute_task.signature((id,), eta=timer)
             if work.timer is None:
                 async_result = sig.apply_async()
                 work.task_id = async_result.id
                 work.timer = timer
+
                 db.session.add(work)
                 db.session.commit()
             else:
@@ -201,10 +223,11 @@ def audit_work_timer(id):
                 async_result = sig.apply_async()
                 work.task_id = async_result.id
                 work.timer = timer
+
                 db.session.add(work)
                 db.session.commit()
         else:
-            flash(u'已过时间点，请重新设置时间')
+            flash('Timer must later then now')
 
     return render_template('audit/work_timer.html', work=work)
 
@@ -212,10 +235,16 @@ def audit_work_timer(id):
 @audit.route('/audit/timer/cancel/<int:id>')
 @audit_permission.require(http_exception=403)
 def audit_work_timer_cancel(id):
+    """
+    Cancel timer set.
+    :param id:
+    :return:
+    """
     work = Work.query.get(id)
     celery.control.revoke(work.task_id, terminate=True)
     work.task_id = None
     work.timer = None
+
     db.session.add(work)
     db.session.commit()
 
@@ -225,6 +254,10 @@ def audit_work_timer_cancel(id):
 @audit.route('/audit/timer/view')
 @audit_permission.require(http_exception=403)
 def audit_work_timer_view():
+    """
+    Show work orders which have timer.
+    :return:
+    """
     works = Work.query.filter(Work.timer != None).all()
 
     return render_template('audit/work_timer_view.html', works=works)
@@ -241,6 +274,10 @@ def audit_work_timer_detail(id):
 @audit.route('/timer_celery_status', methods=['POST'])
 @audit_permission.require(http_exception=403)
 def timer_celery_status():
+    """
+    Get status from celery.
+    :return:
+    """
     work_flow_tid = request.form['workflowtid']
 
     if work_flow_tid == '' or work_flow_tid is None:
@@ -249,16 +286,22 @@ def timer_celery_status():
         return jsonify(context)
 
     task = celery.AsyncResult(work_flow_tid)
+
     if task.state == 'PENDING':
-        context = {'status': 1, 'msg': 'Wait or Unknown task', 'data': ''}
+        context = {'status': 1, 'msg': 'Wait', 'data': ''}
+        return jsonify(context)
+
     elif task.state == 'STARTED':
         context = {'status': 2, 'msg': 'Executing', 'data': ''}
+        return jsonify(context)
+
     elif task.state == 'RETRY':
         context = {'status': 3, 'msg': 'Retrying', 'data': ''}
+        return jsonify(context)
+
     elif task.state == 'SUCCESS':
         context = {'status': 0, 'msg': 'Success', 'data': ''}
-
-    return jsonify(context)
+        return jsonify(context)
 
 
 def get_sql_sha1(work_flow_id):

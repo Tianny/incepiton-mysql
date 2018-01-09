@@ -13,7 +13,9 @@ from ..inception import sql_auto_review, get_osc, stop_osc, get_sql_roll
 from ..tasks import execute_task
 from . import audit
 
-sql_sha1_cache = {}  # 存储SQL文本与SHA1值的对应关系，尽量减少与数据库的交互次数,提高效率。格式: {工单ID1:{SQL内容1:sqlSHA1值1, SQL内容2:sqlSHA1值2},}
+# Dictionary cache used for store SQL and corresponding SHA1
+# Format: {work_flow_id1:{SQL_id1:sqlSHA1 value1, SQL_id2:sqlSHA1 value2}}
+sql_sha1_cache = {}
 
 
 @audit.route('/audit/resource/dealt')
@@ -311,14 +313,14 @@ def timer_celery_status():
 
 def get_sql_sha1(work_flow_id):
     """
-    从数据库里查出review_content, 取出其中的sql_sha1值
+    Get the sql_sha1 value from review_content filed in database.
     :param work_flow_id:
     :return:
     """
     work_flow_detail = Work.query.filter(Work.id == work_flow_id).first()
     dict_sha1 = {}
 
-    # 使用json.loads方法，将review_content从str转成list
+    # Transfer review_content from str to list object.
     list_recheck_result = json.loads(work_flow_detail.auto_review)
 
     for row_num in range(len(list_recheck_result)):
@@ -328,8 +330,9 @@ def get_sql_sha1(work_flow_id):
             dict_sha1[id] = sql_sha1
 
     if dict_sha1 != {}:
-        # 如果找到sql_sha1的值，说明是通过pt-OSC操作的，将其放入缓存
-        # 因为使用OSC执行的sql占少数，所有不设置缓存过期时间
+        # Make dict_sha1 as the value and the work_flow_id as the key
+        # And put them into the global dictionary sql_sha1_cache which marked as cache
+        # Because the pt-osc rarely used, the cache didn't set timeout limitation
         sql_sha1_cache[work_flow_id] = dict_sha1
 
     return dict_sha1
@@ -338,50 +341,70 @@ def get_sql_sha1(work_flow_id):
 @audit.route('/osc_percent', methods=['POST'])
 def osc_percent():
     """
-    获取该SQL的pt-OSC执行进度和剩余事件
+    Get pt-osc percentage and remain time.
     :return:
     """
     work_flow_id = request.form['workflowid']
     sql_id = request.form['sqlID']
 
     if work_flow_id == '' and work_flow_id is None or sql_id == '' or sql_id is None:
-        context = {'status': -1, 'msg': 'workflowId 或 sqlID参数为空', 'data': ''}
+        context = {'status': -1, 'msg': 'workflowId or sqlID is null !', 'data': ''}
+
         return jsonify(context)
 
     work_flow_id = int(work_flow_id)
     sql_id = int(sql_id)
+
     if work_flow_id in sql_sha1_cache:
         dict_sha1 = sql_sha1_cache[work_flow_id]
     else:
         dict_sha1 = get_sql_sha1(work_flow_id)
+
     if dict_sha1 != {} and sql_id in dict_sha1:
         sql_sha1 = dict_sha1[sql_id]
-        # 成功获取sha1值，去inception里面查询
+
+        # Query the percentage through Inception from the sha1
         result = get_osc(sql_sha1)
+
         if result["status"] == 0:
             pct_result = result
+
+            return jsonify(pct_result)
         else:
             execute_result = Work.query.filter(Work.id == work_flow_id).first().execute_result
             try:
                 list_execute_result = json.loads(execute_result)
             except:
                 list_execute_result = execute_result
+
             if type(list_execute_result) == list and len(list_execute_result) >= sql_id - 1:
+
                 if dict_sha1[sql_id] in list_execute_result[sql_id - 1][10]:
                     pct_result = {'status': 0, 'msg': 'ok', 'data': {'percent': 100, 'time_remain': ''}}
+
+                    return jsonify(pct_result)
             else:
                 pct_result = {'status': -3, 'msg': 'Progress Unknown', 'data': {'percent': -100, 'time_remain': ''}}
+
+                return jsonify(pct_result)
+
     elif dict_sha1 != {} and sql_id not in dict_sha1:
         pct_result = {'status': 4, 'msg': '该行sql不由pt-OSC执行', 'data': ''}
+
+        return jsonify(pct_result)
     else:
         pct_result = {'status': -2, 'msg': '整个工单不由pt-OSC执行', 'data': ''}
 
-    return jsonify(pct_result)
+        return jsonify(pct_result)
 
 
 @audit.route('/stop_osc', methods=['POST'])
 @audit_permission.require(http_exception=403)
 def stop_osc_progress():
+    """
+    Stop pt-osc across to sha1.
+    :return:
+    """
     data = request.form
     work_flow_id = data['workflowid']
     sql_id = data['sqlID']
@@ -400,10 +423,12 @@ def stop_osc_progress():
 
     work_flow_id = int(work_flow_id)
     sql_id = int(sql_id)
+
     if work_flow_id in sql_sha1_cache:
         dict_sha1 = sql_sha1_cache[work_flow_id]
     else:
         dict_sha1 = get_sql_sha1(work_flow_id)
+
     if dict_sha1 != {} and sql_id in dict_sha1:
         sql_sha1 = dict_sha1[sql_id]
         opt_result = stop_osc(sql_sha1)
@@ -415,6 +440,10 @@ def stop_osc_progress():
 
 @audit.route('/work_flow_status', methods=['POST'])
 def work_flow_status():
+    """
+    Deal with the get work status request from Ajax
+    :return:
+    """
     work_flow_id = request.form['workflowid']
 
     if work_flow_id == '' or work_flow_id is None:
@@ -425,6 +454,7 @@ def work_flow_status():
     work_flow_id = int(work_flow_id)
     work_flow_detail = Work.query.get(work_flow_id)
     work_flow_status = work_flow_detail.status
+
     result = {'status': work_flow_status, 'msg': '', 'data': ''}
 
     return jsonify(result)
@@ -433,19 +463,24 @@ def work_flow_status():
 @audit.route('/audit/work/rollback/<int:id>')
 @audit_permission.require(http_exception=403)
 def audit_work_rollback(id):
+    """
+    Roll back sql.
+    :param id:
+    :return:
+    """
     sql_roll = get_sql_roll(id)
     base_dir = os.path.dirname(__file__)
     roll_back_dir = base_dir + '/tmp'
 
     if not os.path.exists(roll_back_dir):
         os.makedirs(roll_back_dir)
-    fp = open(roll_back_dir + '/backup.sql', 'w')
+    fp = open(roll_back_dir + '/roll_back.sql', 'w')
 
     for i in range(len(sql_roll)):
         fp.write(sql_roll[i] + '\n')
     fp.close()
 
-    response = make_response(send_file(roll_back_dir + '/backup.sql'))
+    response = make_response(send_file(roll_back_dir + '/roll_back.sql'))
     response.headers['Content-Disposition'] = "attachment; filename=ex.sql"
 
     return response

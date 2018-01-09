@@ -3,7 +3,6 @@
 {% block content %}
 
 <input type="hidden" id="workflowDetail_id" name="workflowid" value="{{ work.id }}">
-<input type="hidden" id="workflowDetail_timer" name="workflowtimer" value="{{ work.timer }}">
 
     <!-- Content Header (Page header) -->
     <section class="content-header">
@@ -216,14 +215,14 @@
                     if (sqlNum <= sqlMaxRowNumber) {
                         if (data.status === -2) {
                             // 整个工单不由pt-OSC执行
-                            document.getElementById("td_" + sqlNum).innerHTML = "不由pt-OSC执行";
+                            document.getElementById("td_" + sqlNum).innerHTML = data.msg;
                             itemIndex ++;
                             get_pct(wid, itemIndex);
                             return;
                         }
                         else if (data.status === 4) {
                             // 不由pt-OSC执行的，比如DML语句
-                            document.getElementById("td_" + sqlNum).innerHTML = "不由pt-OSC执行";
+                            document.getElementById("td_" + sqlNum).innerHTML = data.msg;
                             itemIndex++;
                             clearTimeout(key); //1秒后查询一下进度值
                             key = setTimeout(function () {
@@ -235,7 +234,6 @@
                             getWorkflowStatus(wid);
                             console.log('wfStatus t ' + wfStatus);
                             if (wfStatus !== -1 && wfStatus === 3) {
-                                console.log('why not here');
                                 document.getElementById("div_" + sqlNum).className = "progress";
                                 document.getElementById("div_" + sqlNum).style.width = "100%";
                                 document.getElementById("span_" + sqlNum).innerHTML = "查询中...";
@@ -298,7 +296,7 @@
                 }
             })
         } else {
-            swal('Oops...', '参数不正确', 'error');
+            swal('Oops...', 'argument not correct !', 'error');
         }
     }
 

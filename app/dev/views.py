@@ -375,6 +375,11 @@ def dev_work_cancel(id):
 @login_required
 @dev_permission.require(http_exception=403)
 def dev_work_detail(id):
+    """
+    Show worker order status detail.
+    :param id:
+    :return:
+    """
     work = Work.query.get(id)
 
     if work.status == 0 or work.status == 4:

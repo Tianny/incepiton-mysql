@@ -235,6 +235,7 @@ def execute_final(app, id):
         final_status = 0
         final_list = []
         for sql_row in tmp_list:
+
             # 如果发现任何一个执行结果里有errLevel为1或2，并且stage_status列没有包含Execute Successfully字样，则判断为异常
             if (sql_row[2] == 1 or sql_row[2] == 2) and re.match(r"\w*Execute Successfully\w*", sql_row[3]) is None:
                 final_status = 4
@@ -252,6 +253,7 @@ def execute_final(app, id):
 def get_osc(sql_sha1):
     sql_str = "inception get osc_percent '%s'" % sql_sha1
     result = fetch_all(sql_str, current_app.config['INCEPTION_HOST'], current_app.config['INCEPTION_PORT'], '', '', '')
+
     if len(result) > 0:
         percent = result[0][3]
         time_remain = result[0][4]
@@ -277,12 +279,19 @@ def stop_osc(sql_sha1):
 
 
 def get_sql_roll(work_id):
+    """
+    SQL roll back through Inception.
+    :param work_id:
+    :return:
+    """
     work = Work.query.get(work_id)
     execute_result = json.loads(work.execute_result)
     sql_roll = []
+
     for row in execute_result:
         if row[8] == 'None':
             continue
+
         backup_db_name = row[8]
         sequence = row[7]
         opid_time = sequence.replace("'", "")
@@ -296,6 +305,7 @@ def get_sql_roll(work_id):
             current_app.config['INCEPTION_REMOTE_BACKUP_PASSWORD'],
             ''
         )
+
         if tables is None or len(tables) != 1:
             print('Error: return list_tables more than 1')
 

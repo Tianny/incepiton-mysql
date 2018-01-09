@@ -36,18 +36,18 @@ class DevelopmentConfig(Config):
 
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DEV_DATABASE_URL',
-        'mysql+pymysql://inception_web:inception_web@10.10.106.68:3306/inception_web2?charset=utf8'
+        'mysql+pymysql://root:mysql@127.0.0.1:3306/inception_web?charset=utf8'
     )
 
     # Inception settings
-    INCEPTION_HOST = '10.10.106.68'
+    INCEPTION_HOST = '127.0.0.1'
     INCEPTION_PORT = 6669
 
     # Inception backup settings
-    INCEPTION_REMOTE_BACKUP_HOST = '10.10.106.68'
+    INCEPTION_REMOTE_BACKUP_HOST = '127.0.0.1'
     INCEPTION_REMOTE_BACKUP_PORT = 3306
-    INCEPTION_REMOTE_BACKUP_USER = 'inception_web'
-    INCEPTION_REMOTE_BACKUP_PASSWORD = 'inception_web'
+    INCEPTION_REMOTE_BACKUP_USER = 'root'
+    INCEPTION_REMOTE_BACKUP_PASSWORD = 'mysql'
 
     # Flask LDAP settings
     LDAP_OPENLDAP = True

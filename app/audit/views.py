@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timedelta
 import json
 import os
 
@@ -209,8 +210,12 @@ def audit_work_timer(id):
         timer = datetime.strptime(data["dt"], "%Y-%m-%d %H:%M")
         now = datetime.now()
 
+        # Fix the celery 4.0.1 timezone bug.
+        # See detail here https://github.com/celery/celery/pull/4173/
+        eta = timer - timedelta(hours=8)
+
         if timer > now:
-            sig = execute_task.signature((id,), eta=timer)
+            sig = execute_task.signature((id,), eta=eta)
             if work.timer is None:
                 async_result = sig.apply_async()
                 work.task_id = async_result.id

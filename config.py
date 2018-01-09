@@ -68,7 +68,8 @@ class DevelopmentConfig(Config):
 
     # Celery TimeZone
     # CELERY_ENABLE_UTC = False
-    CELERY_TIMEZONE = 'UTC'
+    # CELERY_TIMEZONE = 'UTC'
+    CELERY_TIMEZONE = 'Asia/Shanghai'
 
     # Celery other settings
     CELERY_TASK_SERIALIZER = 'json'

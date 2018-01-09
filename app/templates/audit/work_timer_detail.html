@@ -118,6 +118,11 @@ function getWorkCeleryStatus(wtid){
             console.log('wftStatus ' + wftStatus);
             console.log(content);
             document.getElementById("workflowCelery_status").innerHTML = content;
+            if (content === 'Success') {
+                document.getElementById("workflowCelery_status").style = "color: green";
+            } else {
+                document.getElementById("workflowCelery_status").style = "color: red";
+            }
             if (content !== '' && content !== 'Wait') {
                 $("button.timer_set").attr('disabled', 'True');
             }

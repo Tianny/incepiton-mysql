@@ -21,53 +21,71 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter(User.name == form.username.data).first()
 
-        if user is not None and user.name == 'admin':
-            if user.check_password(form.password.data):
-                login_user(user, form.remember_me.data)
-                identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
+        if current_app.config['LDAP_ON_OFF'] == 'ON':
 
-                return redirect(url_for('main.dashboard'))
-            else:
-                flash('Invalid password')
-
-                return redirect(url_for('.login'))
-
-        if user is not None:
-            validator = ldap.bind_user(form.username.data, form.password.data)
-
-            if validator is not None:
+            # Admin account separate from ldap
+            if user is not None and user.name == 'admin':
                 if user.check_password(form.password.data):
                     login_user(user, form.remember_me.data)
                     identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
 
                     return redirect(url_for('main.dashboard'))
                 else:
-                    user.hash_pass = user.set_password(form.password.data)
+                    flash('Invalid password')
+
+                return redirect(url_for('.login'))
+
+            if user is not None:
+                validator = ldap.bind_user(form.username.data, form.password.data)
+
+                if validator is not None:
+
+                    # Ldap authentication success then check the password stored in db
+                    if user.check_password(form.password.data):
+                        login_user(user, form.remember_me.data)
+                        identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
+
+                        return redirect(url_for('main.dashboard'))
+                    else:
+
+                        # Ldap authentication success and update the correct ldap password into db
+                        user.hash_pass = user.set_password(form.password.data)
+                        db.session.add(user)
+                        db.session.commit()
+
+                        login_user(user, form.remember_me.data)
+                        identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
+
+                        return redirect(url_for('main.dashboard'))
+                else:
+                    flash('Ldap Authentication Fail')
+            else:
+                validator = ldap.bind_user(form.username.data, form.password.data)
+
+                # Ldap authentication success but user does not exists in db, then create it in db.
+                if validator is not None:
+                    user = User()
+                    user.name = form.username.data
+                    user.hash_pass = generate_password_hash(form.password.data)
+                    user.role = 'dev'
+                    user.email = form.username.data + '@example.com'
                     db.session.add(user)
                     db.session.commit()
+
                     login_user(user, form.remember_me.data)
                     identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
 
                     return redirect(url_for('main.dashboard'))
-            else:
-                flash('Ldap Authentication Fail')
+                else:
+                    flash('Ldap Authentication Fail')
         else:
-            validator = ldap.bind_user(form.username.data, form.password.data)
-
-            if validator is not None:
-                user = User()
-                user.name = form.username.data
-                user.hash_pass = generate_password_hash(form.password.data)
-                user.role = 'dev'
-                user.email = form.username.data + '@in66.com'
-                db.session.add(user)
-                db.session.commit()
+            if user is not None and user.check_password(form.password.data):
                 login_user(user, form.remember_me.data)
                 identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
 
                 return redirect(url_for('main.dashboard'))
             else:
-                flash('Ldap Authentication Fail')
+                flash('Invalid username or password')
 
     return render_template("auth/login.html", form=form)
 

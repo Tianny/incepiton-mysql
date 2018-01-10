@@ -24,7 +24,7 @@ class Config:
     CRITICAL_DDL_ON_OFF = 'ON'
 
     # LDAP switch option
-    LDAP_ON_OFF = 'ON'
+    LDAP_ON_OFF = 'OFF'
 
 
 class DevelopmentConfig(Config):

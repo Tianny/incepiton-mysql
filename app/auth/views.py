@@ -5,7 +5,7 @@ from flask_principal import Identity, AnonymousIdentity, identity_changed
 
 from .. import db, ldap
 from . import auth
-from .form import LoginForm
+from .form import LoginForm, RegisterForm
 from ..models import User
 
 
@@ -87,7 +87,7 @@ def login():
             else:
                 flash('Invalid username or password')
 
-    return render_template("auth/login.html", form=form)
+    return render_template("auth/login.html", form=form, current_app=current_app)
 
 
 @auth.route('/logout')
@@ -97,3 +97,25 @@ def logout():
     identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
 
     return redirect(url_for('.login'))
+
+
+@auth.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        user = User()
+        user.name = form.username.data
+        user.hash_pass = generate_password_hash(form.password.data)
+        user.email = form.email.data
+
+        # Register user's role is dev, by default.
+        user.role = 'dev'
+
+        db.session.add(user)
+        db.session.commit()
+
+        flash('You have registered successfully. Please login! ')
+
+        return redirect(url_for('auth.login'))
+
+    return render_template('auth/register.html', form=form)

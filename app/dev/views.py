@@ -3,7 +3,7 @@ import re
 import json
 
 import sqlparse
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 
 from .. import db
@@ -11,6 +11,7 @@ from .. import dev_permission
 from ..models import Dbapply, User, Dbconfig, Work
 from .form import DbApplyForm, WorkForm, UpdateWorkForm
 from ..inception import sql_auto_review
+from ..tasks import send_mail
 from . import dev
 
 
@@ -57,7 +58,13 @@ def dev_resource_cancel(id):
     db.session.add(resource)
     db.session.commit()
 
-    return redirect(url_for('.dev_resource'))
+    if current_app.config['MAIL_ON_OFF'] == 'ON':
+        auditor = User.query.filter(User.name == resource.audit_name).first()
+        mail_content = "<p>Proposer：" + resource.dev_name + "</p>" + "<p>Db instance's name：" + resource.db_name + \
+                       "</p>" + "<p>Dev has cancelled the application.</p>"
+        send_mail.delay('【inception_mysql】Db instance application cancelled', mail_content, auditor.email)
+
+    return redirect(url_for('.dev_resource_status'))
 
 
 @dev.route('/dev/resource/request', methods=['GET', 'POST'])
@@ -88,6 +95,12 @@ def dev_resource_request():
 
         db.session.add(resource)
         db.session.commit()
+
+        if current_app.config['MAIL_ON_OFF'] == 'ON':
+            auditor = User.query.filter(User.name == resource.audit_name).first()
+            mail_content = "<p>Proposer：" + resource.dev_name + "</p>" + "<p>Db instance's name：" + resource.db_name + \
+                           "</p>" + "<p>New db instance request</p>"
+            send_mail.delay('【inception_mysql】New db instance request', mail_content, auditor.email)
 
         return redirect(url_for('.dev_resource_status'))
 
@@ -186,6 +199,12 @@ def dev_work_create():
 
                 db.session.add(work)
                 db.session.commit()
+
+                if current_app.config['MAIL_ON_OFF'] == 'ON':
+                    auditor = User.query.filter(User.name == work.audit_name).first()
+                    mail_content = "<p>Proposer：" + work.dev_name + "</p>" + "<p>Sql Content：" + work.sql_content + \
+                                   "</p>" + "<p>A new work sheet.</p>"
+                    send_mail.delay('【inception_mysql】New work sheet', mail_content, auditor.email)
 
                 return redirect(url_for('.dev_work'))
             else:
@@ -339,6 +358,12 @@ def dev_work_modify(id):
                 db.session.add(work)
                 db.session.commit()
 
+                if current_app.config['MAIL_ON_OFF'] == 'ON':
+                    auditor = User.query.filter(User.name == work.audit_name).first()
+                    mail_content = "<p>Proposer：" + work.dev_name + "</p>" + "<p>Modified Sql Content：" + \
+                                   work.sql_content + "</p>"
+                    send_mail.delay('【inception_mysql】Modified work sheet', mail_content, auditor.email)
+
                 return redirect(url_for('.dev_work'))
             else:
                 flash('The return of Inception is null. May be something wrong with the SQL')
@@ -367,6 +392,12 @@ def dev_work_cancel(id):
 
     db.session.add(work)
     db.session.commit()
+
+    if current_app.config['MAIL_ON_OFF'] == 'ON':
+        auditor = User.query.filter(User.name == work.audit_name).first()
+        mail_content = "<p>Proposer：" + work.dev_name + "</p>" + "<p>Sql Content：" + work.sql_content + \
+                       "</p>" + "<p>Dev has cancelled the work sheet.</p>"
+        send_mail.delay('【inception_mysql】Work sheet cancelled', mail_content, auditor.email)
 
     return redirect(url_for('.dev_work'))
 

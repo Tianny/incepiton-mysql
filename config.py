@@ -12,13 +12,15 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Flask-Mail settings
-    MAIL_ON_OFF = 'OFF'
     MAIL_SERVER = 'smtp.163.com'
     MAIL_PORT = 465
     MAIL_USE_SSL = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER = '"inception"<inception_notice@163.com>'
+    MAIL_DEFAULT_SENDER = '"inception"<tiannyxie@163.com>'
+
+    # Mail switch option
+    MAIL_ON_OFF = 'OFF'
 
     # Inception DDL switch option
     CRITICAL_DDL_ON_OFF = 'ON'

@@ -3,14 +3,14 @@ from datetime import timedelta
 import json
 import os
 
-from flask import render_template, url_for, redirect, request, jsonify, flash, make_response, send_file
+from flask import render_template, url_for, redirect, request, jsonify, flash, make_response, send_file, current_app
 from flask_login import login_required, current_user
 
 from .. import db, celery
 from .. import audit_permission
 from ..models import Dbapply, User, Dbconfig, Work
 from ..inception import sql_auto_review, get_osc, stop_osc, get_sql_roll
-from ..tasks import execute_task
+from ..tasks import execute_task, send_mail
 from . import audit
 
 # Dictionary cache used for store SQL and corresponding SHA1
@@ -63,6 +63,12 @@ def audit_resource_alloc(id):
     db.session.add(resource)
     db.session.commit()
 
+    if current_app.config['MAIL_ON_OFF'] == 'ON':
+        dev = User.query.filter(User.name == resource.dev_name).first()
+        mail_content = "<p>Proposer：" + resource.dev_name + "</p>" + "<p>Db instance's name：" + resource.db_name + \
+                       "</p>" + "<p>Your db instance request has been passed.</p>"
+        send_mail.delay('【inception_mysql】Db instance request passed', mail_content, dev.email)
+
     return redirect(url_for('.audit_resource_pending'))
 
 
@@ -81,6 +87,12 @@ def audit_resource_cancel(id):
 
     db.session.add(resource)
     db.session.commit()
+
+    if current_app.config['MAIL_ON_OFF'] == 'ON':
+        dev = User.query.filter(User.name == resource.dev_name).first()
+        mail_content = "<p>Proposer：" + resource.dev_name + "</p>" + "<p>Db instance's name：" + resource.db_name + \
+                       "</p>" + "<p>Your db instance request is disagreed.</p>"
+        send_mail.delay('【inception_mysql】Db instance request failure', mail_content, dev.email)
 
     return redirect(url_for('.audit_resource_dealt'))
 
@@ -153,6 +165,11 @@ def audit_work_cancel(id):
     db.session.add(work)
     db.session.commit()
 
+    if current_app.config['MAIL_ON_OFF'] == 'ON':
+        dev = User.query.filter(User.name == work.dev_name).first()
+        mail_content = "<p>Work Sheet：" + work.name + " is cancelled by auditor. Please contact with your auditor.</p>"
+        send_mail.delay('【inception_mysql】Work Sheet Cancelled', mail_content, dev.email)
+
     return redirect(url_for('.audit_work_dealt'))
 
 
@@ -170,6 +187,11 @@ def audit_work_reject(id):
     work.finish_time = datetime.now()
     db.session.add(work)
     db.session.commit()
+
+    if current_app.config['MAIL_ON_OFF'] == 'ON':
+        dev = User.query.filter(User.name == work.dev_name).first()
+        mail_content = "<p>Work Sheet：" + work.name + " is rejected by auditor. Please modify it.</p>"
+        send_mail.delay('【inception_mysql】Work Sheet Rejected', mail_content, dev.email)
 
     return redirect(url_for('.audit_work_dealt'))
 
@@ -194,6 +216,11 @@ def audit_work_execute():
         db.session.commit()
 
         async_result = execute_task.apply_async(args=[id], task_id=str(id))
+
+        if current_app.config['MAIL_ON_OFF'] == 'ON':
+            dev = User.query.filter(User.name == work.dev_name).first()
+            mail_content = "<p>Work Sheet：" + work.name + " is executing. </p>" + "<p>Please view it</p>"
+            send_mail.delay('【inception_mysql】Work Sheet Inform', mail_content, dev.email)
 
     return jsonify({}), 202, {'Location': url_for('.audit_work_detail', id=id)}
 

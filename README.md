@@ -137,7 +137,7 @@ Celery 需要使用 broker 和 backend， 我这里都采用了 redis。具体 C
 
 - 部署
 
-Flask部署方式请Google
+Flask部署方式请参考[部署](http://tianny.cc/Flask-Gunicorn-Nginx%E9%83%A8%E7%BD%B2/)
 
 - 本地测试
 

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date, timedelta
 import re
 import json
 
@@ -423,3 +423,57 @@ def dev_work_detail(id):
         content[5] = content[5].split('\r\n')
 
     return render_template('dev/work_detail.html', work=work, list_content=list_content)
+
+
+@dev.route('/dev/chart/<int:days>')
+@dev_permission.require(http_exception=403)
+def dev_chart(days=7):
+    day_range = []
+    today = date.today()
+    day_range.append(str(today))
+
+    for day in range(1, days):
+        date_tmp = today - timedelta(days=day)
+        day_range.append(str(date_tmp))
+    day_range.sort()
+
+    day_counts = []
+
+    for i in range(len(day_range)):
+        day_count = Work.query.filter(Work.dev_name == current_user.name,
+                                      Work.create_time.like(day_range[i] + '%')).count()
+        day_counts.append(day_count)
+
+    days_ago = today - timedelta(days=days)
+    works = Work.query.filter(Work.dev_name == current_user.name, Work.create_time >= days_ago).group_by(Work.status)
+    work_status = {
+        'Success': 0,
+        'Pending': 0,
+        'Check Failed': 0,
+        'Executing': 0,
+        'Error': 0,
+        'Dev Cancelled': 0,
+        'Audit Cancelled': 0,
+        'Audit Rejected': 0
+    }
+
+    for work in works:
+        if work.status == 0:
+            work_status['Success'] += 1
+        elif work.status == 1:
+            work_status['Pending'] += 1
+        elif work.status == 2:
+            work_status['Check Failed'] += 1
+        elif work.status == 3:
+            work_status['Executing'] += 1
+        elif work.status == 4:
+            work_status['Error'] += 1
+        elif work.status == 5:
+            work_status['Dev Cancelled'] += 1
+        elif work.status == 6:
+            work_status['Audit Cancelled'] += 1
+        elif work.status == 7:
+            work_status['Audit Rejected'] += 1
+
+    return render_template('dev/chart.html', day_range=day_range, day_counts=day_counts, work_status=work_status,
+                           days=days)

@@ -1,0 +1,184 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Inception
+            <small>MySQL</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ url_for('main.dashboard') }}"><i class="fa fa-home"></i> Home</a></li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-header">
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                Charts exhibition within {{ days }} days &nbsp;&nbsp;
+                                <span style="color: black;"><a href="{{ url_for('dev.dev_chart', days=1) }}">1</a></span>
+                                &nbsp;
+                                <span style="color: #1e90ff;"><a href="{{ url_for('dev.dev_chart', days=3) }}">3</a> </span>
+                                &nbsp;
+                                <span style="color: #1e90ff;"><a href="{{ url_for('dev.dev_chart', days=7) }}">7</a> </span>
+                                &nbsp;
+                                <span style="color: #1e90ff;"><a href="{{ url_for('dev.dev_chart', days=15) }}">15</a> </span>
+                                &nbsp;
+                                <span style="color: #1e90ff;"><a href="{{ url_for('dev.dev_chart', days=30) }}">30</a> </span>
+                                &nbsp;
+                            </div>
+                            <div class="panel-body">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <div id="day_count" style="height: 350px"></div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <div id="distribution" style="height: 350px"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+
+    </section>
+    <!-- /.content -->
+
+{% endblock %}
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{{ url_for('static',filename='vendor/chart/echarts.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='vendor/chart/macarons.js') }}"></script>
+{% endblock %}
+
+{% block custom %}
+    <script>
+        // 基于准备好的dom，初始化echarts实例
+        var day_count = echarts.init(document.getElementById('day_count'), 'macarons')
+
+        // 指定图标的配置项和数据
+        var option_nums = {
+            title: {
+                'text': 'Work Sheet Nums'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['Work Sheet Nums']
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: {show: true},
+                    dataView: {show: true, readOnly: false},
+                    magicType: {show: true, type: ['line', 'bar']},
+                    restore: {show: true},
+                    saveAsImage: {show: true}
+                }
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: {{ day_range|safe }}
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {
+                    name: 'Nums',
+                    'type': 'line',
+                    data: {{ day_counts|tojson }}
+                }
+            ]
+        };
+
+        // 使用指定的配置项显示图表
+        day_count.setOption(option_nums);
+
+        // 饼图
+        var distribution = echarts.init(document.getElementById('distribution'), 'macarons');
+        var option_pie = {
+            title: {
+                text: 'Work Sheet Status'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: "{a} <br/>{b} : {c} ({d}%)"
+            },
+            legend: {
+                type: 'scroll',
+                orient: 'vertical',
+                x: 'left',
+                y: 'bottom',
+                data: ['Success', 'Pending', 'Check Failed', 'Executing', 'Error', 'Dev Cancelled', 'Audit Cancelled', 'Audit Rejected']
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: {show: true},
+                    dataView: {show: true, readOnly: false},
+                    magicType: {
+                        show: true,
+                        type: ['pie', 'funnel'],
+                        option: {
+                            funnel: {
+                                x: '25%',
+                                width: '50%',
+                                funnelAlign: 'center',
+                                max: 1548
+                            }
+                        }
+                    },
+                    restore: {show: true},
+                    saveAsImage: {show: true}
+                }
+            },
+            calculable: true,
+            series: [
+                {
+                    name: 'Work Sheet Status',
+                    type: 'pie',
+                    radius: ['50%', '80%'],
+                    itemStyle: {
+                        emphasis: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    data: [
+                        {% for key,value in work_status.items() %}
+                            {
+                                value: {{ value|tojson }},
+                                name: '{{ key|safe }}'
+                            },
+                        {% endfor %}
+                    ]
+                }
+            ]
+        };
+        distribution.setOption(option_pie);
+    </script>
+{% endblock %}

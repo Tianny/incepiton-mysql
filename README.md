@@ -128,7 +128,7 @@ db.creat_all()
 Celery 需要使用 broker 和 backend， 我这里都采用了 redis。具体 Celery 的使用 查看[Celery文档](http://docs.celeryproject.org/en/latest/index.html#)
 
 ```python
-    celery worker -A celery_runner --logleve=debug --statedb=/tmp/worker.state
+    celery worker -A celery_runner \-\-logleve=info \-\-statedb=/tmp/worker.state
 ```
 
 注意上面的 <code>--statedb=/tmp/worker.state</code>，撤销的定时任务均被 Celery 保存在里面，所以最好不要丢失。
@@ -140,7 +140,7 @@ Flask部署方式请Google
 - 本地测试
 
 ```python
-python manage.py run server --threaded
+python manage.py run server \-\-threaded
 ```
 
 ## 改进

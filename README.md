@@ -2,6 +2,8 @@
 
 :apple: A web platform designed for MySQL Inception.
 
+:anchor: 基于Inception的SQL自动化审核平台。
+
 ![Travis](https://img.shields.io/badge/python-v3.x-orange.svg)
 ![Travis](https://img.shields.io/badge/flask-v0.12.2-orange.svg)
 ![Travis](https://img.shields.io/badge/mysql-v5.7-orange.svg)

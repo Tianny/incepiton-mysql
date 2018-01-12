@@ -39,6 +39,8 @@
 - 数据库实例添加、修改、删除
 - 用户添加、修改、删除
 
+### 邮件通知
+
 ## 重要功能介绍
 
 ### 支持分表操作
@@ -90,7 +92,7 @@
 - 7：Audit Rejected，审核人驳回
 - 8：Timer，定时任务
 
-## 部分说明
+## 部分开发说明
 
 1. Inception编译安装，请使用 bison 2.6 以下版本
 
@@ -108,3 +110,25 @@
 
 5. Celery 最新版本即4.0.1 存在时区设置BUG，具体详见[TimeZone Bug](https://github.com/celery/celery/pull/4173/)，具体就是设置了 Asia/Shanghai，ETA 执行的时间比正常东八区时间又多了8个小时，不过我已经在代码里处理过了。官方会在下个版本修复。
 
+## 使用说明
+
+- 创建表结构
+```python
+python manage.py shell
+db.creat_all()
+```
+- 创建用户
+
+如果是走OpenLDAP的话，不需要手动创建用户，会自动同步到数据库中。
+
+不走OpenLDAP，通过登录页面的注册功能即可。当然也可手动去数据库里添加。
+
+- 部署
+
+Flask部署方式请Google
+
+- 本地测试
+
+```python
+python manage.py run server --threaded
+```

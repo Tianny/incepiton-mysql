@@ -97,14 +97,14 @@
 2. 请注意 Python3 和 Python2 编码不同
 
 3. 对接OpenLDAP，使用了[flask-simpleLDAP](http://flask-simpleldap.readthedocs.io/en/latest/)扩展，为了兼容 python3，有一处源码需要修改，__init.__py 第153行，按如下修改
-!(https://github.com/Tianny/incepiton_mysql/blob/master/images/flask-ldap-modify.png)
+![ldap](https://github.com/Tianny/incepiton_mysql/blob/master/images/flask-ldap-modify.png)
 
 4. 为了兼容 Inception 返回的信息，pyMysql 需要修改两处源码。
 - python3使用的pyMysql模块里并未兼容inception返回的server信息，因此需要添加
-!(https://github.com/Tianny/incepiton_mysql/blob/master/images/pymsql_modify_2.png)
+![2](https://github.com/Tianny/incepiton_mysql/blob/master/images/pymsql_modify_2.png)
 
 - python3的pyMysql模块会向inception发送SHOW WARNINGS语句，导致inception返回一个"Must start as begin statement"错误。
-!(https://github.com/Tianny/incepiton_mysql/blob/master/images/pymsql_modify_1.png)
+![1](https://github.com/Tianny/incepiton_mysql/blob/master/images/pymsql_modify_1.png)
 
 5. Celery 最新版本即4.0.1 存在时区设置BUG，具体详见[TimeZone Bug](https://github.com/celery/celery/pull/4173/)，具体就是设置了 Asia/Shanghai，ETA 执行的时间比正常东八区时间又多了8个小时，不过我已经在代码里处理过了。官方会在下个版本修复。
 

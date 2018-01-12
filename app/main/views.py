@@ -1,4 +1,4 @@
-from flask import render_template, current_app, request, flash, make_response, send_file, url_for, jsonify, redirect
+from flask import render_template, url_for, redirect
 from flask_login import current_user, login_required
 
 from . import main
@@ -12,4 +12,7 @@ def index():
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('main/dashboard.html')
+    if current_user.role == 'dev':
+        return redirect(url_for('dev.dev_chart', days=7))
+    else:
+        return render_template('main/dashboard.html')

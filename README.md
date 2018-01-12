@@ -56,7 +56,7 @@
 
 ### SQL执行进度实时获取
 
-只有走pt-osc修改大表时，才会显示执行进度。
+只有走pt-osc修改大表时，才会显示执行进度。具体多大的表走pt-osc，可以通过 Inception 来配置，具体参考 [Inception文档](http://mysql-inception.github.io/inception-document/)。
 ![进度获取](https://github.com/Tianny/incepiton_mysql/blob/master/images/percent.png)
 
 ### 定时任务

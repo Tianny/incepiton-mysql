@@ -142,7 +142,7 @@ Flask部署方式请Google
 - 本地测试
 
 ```bash
-python manage.py run server --threaded
+python manage.py runserver --threaded
 ```
 
 ## 改进

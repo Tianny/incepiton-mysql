@@ -108,7 +108,7 @@
 - python3的pyMysql模块会向inception发送SHOW WARNINGS语句，导致inception返回一个"Must start as begin statement"错误。
 ![1](https://github.com/Tianny/incepiton_mysql/blob/master/images/pymsql_modify_1.png)
 
-5. Celery 最新版本即4.0.1 存在时区设置BUG，具体详见[TimeZone Bug](https://github.com/celery/celery/pull/4173/)，具体就是设置了 Asia/Shanghai，ETA 执行的时间比正常东八区时间又多了8个小时，不过我已经在代码里处理过了。官方会在下个版本修复。
+5. Celery 最新版本即4.1.0 存在时区设置BUG，具体详见[TimeZone Bug](https://github.com/celery/celery/pull/4173/)，具体就是设置了 Asia/Shanghai，ETA 执行的时间比正常东八区时间又多了8个小时，不过我已经在代码里处理过了。官方会在下个版本修复。
 
 ## 使用说明
 
@@ -123,6 +123,16 @@ db.creat_all()
 
 不走OpenLDAP，通过登录页面的注册功能即可。当然也可手动去数据库里添加。
 
+- 启动 Celery
+
+Celery 需要使用 broker 和 backend， 我这里都采用了 redis。具体 Celery 的使用 查看[Celery文档](http://docs.celeryproject.org/en/latest/index.html#)
+
+```python
+    celery worker -A celery_runner --logleve=debug --statedb=/tmp/worker.state
+```
+
+注意上面的 <code>--statedb=/tmp/worker.state</code>，撤销的定时任务均被 Celery 保存在里面，所以最好不要丢失。
+
 - 部署
 
 Flask部署方式请Google
@@ -132,3 +142,9 @@ Flask部署方式请Google
 ```python
 python manage.py run server --threaded
 ```
+
+## 改进
+
+> 如果对您有帮助，您可以点右上角 "Star" 支持一下 谢谢！ ^_^
+
+> 如有问题请直接在 Issues 中提，或者您发现问题并有非常好的解决方案，欢迎 PR 👍

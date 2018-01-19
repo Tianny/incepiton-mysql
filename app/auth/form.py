@@ -1,6 +1,8 @@
+from ..models import User
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
-from wtforms.validators import DataRequired, Email
+from wtforms.validators import DataRequired, Email, ValidationError
 
 
 class LoginForm(FlaskForm):
@@ -13,3 +15,7 @@ class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
+
+    def validate_username(self, field):
+        if User.query.filter(User.name == field.data).first():
+            raise ValidationError('Username already in use')

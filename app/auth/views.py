@@ -31,7 +31,7 @@ def login():
 
                     return redirect(url_for('main.dashboard'))
                 else:
-                    flash('Invalid password')
+                    flash('Invalid password', category='warning')
 
                 return redirect(url_for('.login'))
 
@@ -58,7 +58,7 @@ def login():
 
                         return redirect(url_for('main.dashboard'))
                 else:
-                    flash('Ldap Authentication Fail')
+                    flash('Ldap Authentication Fail', category='warning')
             else:
                 validator = ldap.bind_user(form.username.data, form.password.data)
 
@@ -77,7 +77,7 @@ def login():
 
                     return redirect(url_for('main.dashboard'))
                 else:
-                    flash('Ldap Authentication Fail')
+                    flash('Ldap Authentication Fail', category='warning')
         else:
             if user is not None and user.check_password(form.password.data):
                 login_user(user, form.remember_me.data)
@@ -85,7 +85,7 @@ def login():
 
                 return redirect(url_for('main.dashboard'))
             else:
-                flash('Invalid username or password')
+                flash('Invalid username or password', category='warning')
 
     return render_template("auth/login.html", form=form, current_app=current_app)
 
@@ -114,7 +114,7 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        flash('You have registered successfully. Please login! ')
+        flash('You have registered successfully. Please login! ', category='success')
 
         return redirect(url_for('auth.login'))
 

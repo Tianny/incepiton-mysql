@@ -123,7 +123,16 @@ db.creat_all()
 
 如果是走OpenLDAP的话，不需要手动创建用户，会自动同步到数据库中。
 
-不走OpenLDAP，admin用户密码需要手动创建，其他用户通过登录页面的注册功能即可，角色的分配需要admin用户登陆修改。当然这些操作都可以手动去数据库里添加。
+不走OpenLDAP，用户需要创建。角色的分配需要admin用户登陆之后修改。
+
+创建方式一：
+适用于普通用户，直接可以从登陆页面的注册链接进行注册
+
+创建方式二：
+admin用户和普通用户，以创建test用户为例
+```bash
+python manage.py create_user --name test --password test --email test@examle.com
+```
 
 - 启动 Celery
 

@@ -38,12 +38,27 @@
     <!-- /.login-logo -->
     <div class="login-box-body">
         <p class="login-box-msg">Register to start your session</p>
-        {% for message in get_flashed_messages() %}
-            <div class="alert alert-success">
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+            <div class="alert alert-{{ category }}">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                 {{ message }}
             </div>
         {% endfor %}
+        {% if form.username.errors %}
+            {% for e in form.username.errors %}
+                <p class="alert alert-warning">{{ e }}</p>
+            {% endfor %}
+        {% endif %}
+        {% if form.password.errors %}
+            {% for e in form.password.errors %}
+                <p class="alert alert-warning">{{ e }}</p>
+            {% endfor %}
+        {% endif %}
+        {% if form.email.errors %}
+            {% for e in form.email.errors %}
+                <p class="alert alert-warning">{{ e }}</p>
+            {% endfor %}
+        {% endif %}
         <form action="{{ url_for('auth.register') }}" method="post">
             {{ form.hidden_tag() }}
             <div class="form-group has-feedback">

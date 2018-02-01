@@ -9,7 +9,7 @@ def page_not_found(e):
 
 
 @main.app_errorhandler(403)
-def internal_server_error(e):
+def privilege_error(e):
     return render_template('main/403.html'), 403
 
 

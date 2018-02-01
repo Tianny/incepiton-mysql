@@ -18,6 +18,7 @@ login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
 login_manager.remember_cookie_duration = timedelta(minutes=5)
+login_manager.login_message_category = "danger"
 
 # ldap
 ldap = LDAP()

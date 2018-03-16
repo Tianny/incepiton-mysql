@@ -117,7 +117,7 @@
 - 创建表结构
 ```python
 python manage.py shell
-db.creat_all()
+db.create_all()
 ```
 - 创建用户
 
